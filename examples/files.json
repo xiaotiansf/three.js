@@ -453,5 +453,8 @@
 		"webgl_furnace_test",
 		"webgl_pmrem_test",
 		"misc_uv_tests"
+	],
+	"videos": [
+		"video_sample_30s"
 	]
 }
