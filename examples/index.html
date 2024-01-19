@@ -33,7 +33,6 @@
 				</div>
 
 				<div id="content">
-					<button onclick="toggleClock()" id="containerButton">Hide</button>
 					<img id="previewsToggler" src="./files/thumbnails.svg" width="20" height="20" />
 				</div>
 			</div>
@@ -65,31 +64,7 @@
 
 		let selected = null;
 
-		container.style.display = 'block';
-
 		init();
-
-		function toggleClock() {
-			// get the current value of the clock's display property
-			var displaySetting = container.style.display;
-
-			// also get the clock button, so we can change what it says
-			var containerButton = document.getElementById('containerButton');
-
-			// now toggle the clock and the button text, depending on current state
-			if (displaySetting == 'block') {
-				// clock is visible. hide it
-				container.style.display = 'none';
-				// change button text
-				containerButton.innerHTML = 'Show';
-			}
-			else {
-				// clock is hidden. show it
-				container.style.display = 'block';
-				// change button text
-				containerButton.innerHTML = 'Hide';
-			}
-		}
 
 		async function init() {
 
