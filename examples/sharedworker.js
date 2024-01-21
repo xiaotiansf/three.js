@@ -9,11 +9,12 @@ function MakeConnection ()
     socket.addEventListener('open', function (event) {
         socket.send('Hello Server!');
         console.log('connected to palacio-display-server!');
+        console.log("current href: %s", window.location.href);
         retrying = false;
     });
     if (socket.readyState !== socket.OPEN) {
-    console.log('Connection open: failed and retry later');
-    setTimeout(MakeConnection, timeout);
+        console.log('Connection open: failed and retry later');
+        setTimeout(MakeConnection, timeout);
     }
 }
 
