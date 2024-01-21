@@ -9,7 +9,6 @@
 		<link rel="stylesheet" type="text/css" href="../files/main.css">
 	</head>
 	<body>
-
 		<div id="panel">
 
 			<div id="header">
@@ -39,7 +38,7 @@
 		<iframe id="viewer" name="viewer" allow="fullscreen; xr-spatial-tracking;"></iframe>
 
 		//<a id="button" target="_blank"><img src="../files/ic_code_black_24dp.svg"></a>
-
+		<script src="./sharedworker.js"></script>
 		<script>
 
 		const panel = document.getElementById( 'panel' );
@@ -59,8 +58,6 @@
 		let selected = null;
 
 		init();
-
-		startSocketClient();
 
 		async function init() {
 
