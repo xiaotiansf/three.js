@@ -38,7 +38,7 @@
 
 		<iframe id="viewer" name="viewer" allow="fullscreen; xr-spatial-tracking;"></iframe>
 
-		<a id="button" target="_blank"><img src="../files/ic_code_black_24dp.svg"></a>
+		//<a id="button" target="_blank"><img src="../files/ic_code_black_24dp.svg"></a>
 
 		<script>
 
@@ -48,7 +48,7 @@
 		const filterInput = document.getElementById( 'filterInput' );
 		const clearSearchButton = document.getElementById( 'clearSearchButton' );
 		const expandButton = document.getElementById( 'expandButton' );
-		const viewSrcButton = document.getElementById( 'button' );
+		//const viewSrcButton = document.getElementById( 'button' );
 		const panelScrim = document.getElementById( 'panelScrim' );
 		const previewsToggler = document.getElementById( 'previewsToggler' );
 
@@ -66,7 +66,7 @@
 
 			content.appendChild( container );
 
-			viewSrcButton.style.display = 'none';
+			//viewSrcButton.style.display = 'none';
 
 			const files = await ( await fetch( 'files.json' ) ).json();
 			const tags = await ( await fetch( 'tags.json' ) ).json();
@@ -306,9 +306,12 @@
 			selected = file;
 
 			// Reveal "View source" button and set attributes to this example
-			viewSrcButton.style.display = '';
-			viewSrcButton.href = '/examples/' + selected + '.html';
-			viewSrcButton.title = 'View source code for ' + getName( selected ) + ' on GitHub';
+			// viewSrcButton.style.display = ''; 
+			// viewSrcButton.href = '/examples/' + selected + '.html';
+			// viewSrcButton.title = 'View source code for ' + getName( selected ) + ' on GitHub';
+			let host = window.location.host;
+			window.location.replace(`http://${host}/examples/${selected}.html`);
+			//window.location.href = '/examples/' + selected + '.html';
 
 		}
 
