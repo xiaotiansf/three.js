@@ -107,5 +107,6 @@
 	"webgl_simple_gi": [ "global illumination" ],
 	"webgl2_multiple_rendertargets": [ "mrt" ],
 	"webgl2_multisampled_renderbuffers": [ "msaa" ],
-	"webxr_xr_ballshooter": [ "physics" ]
+	"webxr_xr_ballshooter": [ "physics" ],
+	"video_template": [ "video" ]
 }

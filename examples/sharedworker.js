@@ -38,7 +38,9 @@ socket.addEventListener('message', function (event) {
             console.log(obj.device_orientation);
             console.log(obj.display_mode);
             console.log(obj.zoom);
-            videoplayer.setAttribute("src", "file://" + obj.filename);
+            let index = obj.filename.indexOf("image-uploads");
+            let filename = obj.filename.substr(index);
+            videoplayer.setAttribute("src", filename);
             videoplayer.play();
         }
         if (obj.cmd === 'image' || obj.cmd === 'gif') {
@@ -47,7 +49,9 @@ socket.addEventListener('message', function (event) {
             picturedisplayer.style.display = "block";
             console.log(obj.filename);
             image.removeAttribute("src");
-            image.setAttribute("src", "file://" + obj.filename);
+            let index = obj.filename.indexOf("image-uploads");
+            let filename = obj.filename.substr(index);
+            image.setAttribute("src", filename);
             image.setAttribute("width", "100%");
             image.setAttribute("height", "auto");
             image.setAttribute("alt", "Image/Gif display mode");
