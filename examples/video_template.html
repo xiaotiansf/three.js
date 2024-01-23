@@ -10,11 +10,13 @@
         <picture id="picturedisplayer">
             <img id="image" src="" width="100%" height="auto" alt="Image display mode" />
         </picture>
+
         <script>
             const timeout = 5000;
             let retrying = true;
             const socket = new WebSocket('ws://127.0.0.1:8080');
             var videoplayer = document.getElementById('videoplayer');
+            var picturedisplayer = document.getElementById('picturedisplayer');
             var image = document.getElementById('image');
 
             // Functions to handle socket events
@@ -42,6 +44,8 @@
                     let json = cmd_string.slice(hashtag_index);
                     const obj = JSON.parse(json);
                     if (obj.cmd === 'video' ) {
+                        picturedisplayer.style.display = "none";
+                        videoplayer.style.display="block";
                         console.log(obj.filename);
                         console.log(obj.info);
                         console.log(obj.direction);
@@ -52,6 +56,8 @@
                         videoplayer.play();
                     }
                     if (obj.cmd === 'image') {
+                        videoplayer.style.display="none";
+                        picturedisplayer.style.display = "block";
                         console.log(obj.filename);
                         image.removeAttribute("src");
                         image.setAttribute("src", "file://" + obj.filename);
