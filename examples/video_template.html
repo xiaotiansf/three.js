@@ -52,10 +52,11 @@
                         console.log(obj.device_orientation);
                         console.log(obj.display_mode);
                         console.log(obj.zoom);
-                        videoplayer.src = "file://" + obj.filename;
+                        videoplayer.setAttribute("src", "file://" + obj.filename);
                         videoplayer.play();
                     }
-                    if (obj.cmd === 'image') {
+                    if (obj.cmd === 'image' || obj.cmd === 'gif') {
+                        videoplayer.setAttribute("src", "");
                         videoplayer.style.display="none";
                         picturedisplayer.style.display = "block";
                         console.log(obj.filename);
@@ -63,7 +64,7 @@
                         image.setAttribute("src", "file://" + obj.filename);
                         image.setAttribute("width", "100%");
                         image.setAttribute("height", "auto");
-                        image.setAttribute("alt", "Image display mode");
+                        image.setAttribute("alt", "Image/Gif display mode");
                     }
                 }
             })
