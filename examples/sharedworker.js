@@ -1,19 +1,22 @@
 const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8080');
+var videoplayer = document.getElementById('videoplayer');
+var picturedisplayer = document.getElementById('picturedisplayer');
+var image = document.getElementById('image');
 
 // Functions to handle socket events
 function MakeConnection ()
 {
     // Connection opened
     socket.addEventListener('open', function (event) {
-        socket.send('Hello Server!');
-        console.log('connected to palacio-display-server!');
-        console.log("current href: %s", window.location.href);
+        socket.send('Videoplayer: Hello Server!');
+        console.log('Videoplayer: connected to palacio-display-server!');
+        console.log("Videoplayer: current href: %s", window.location.href);
         retrying = false;
     });
     if (socket.readyState !== socket.OPEN) {
-        console.log('Connection open: failed and retry later');
+        console.log('Videoplayer: Connection open: failed and retry later');
         setTimeout(MakeConnection, timeout);
     }
 }
@@ -24,22 +27,31 @@ socket.addEventListener('message', function (event) {
     let cmd_string = event.data.toString();
     let hashtag_index = cmd_string.indexOf('{');
     if (hashtag_index === 0) {
-    let json = cmd_string.slice(hashtag_index);
-    const obj = JSON.parse(json);
-    if (obj.cmd === 'model' ) {
-        console.log(obj.filename);
-        console.log(obj.info);
-        console.log(obj.direction);
-        console.log(obj.device_orientation);
-        console.log(obj.display_mode);
-        console.log(obj.zoom);
-        //do choosing 3d model template html file here 
-        //set obj.filename to template file html
-        //selectFile( file );
-    }
-    }
-    else {
-        console.log('received invalid string from palacio-display-server');
+        let json = cmd_string.slice(hashtag_index);
+        const obj = JSON.parse(json);
+        if (obj.cmd === 'video' ) {
+            picturedisplayer.style.display = "none";
+            videoplayer.style.display="block";
+            console.log(obj.filename);
+            console.log(obj.info);
+            console.log(obj.direction);
+            console.log(obj.device_orientation);
+            console.log(obj.display_mode);
+            console.log(obj.zoom);
+            videoplayer.setAttribute("src", "file://" + obj.filename);
+            videoplayer.play();
+        }
+        if (obj.cmd === 'image' || obj.cmd === 'gif') {
+            videoplayer.setAttribute("src", "");
+            videoplayer.style.display="none";
+            picturedisplayer.style.display = "block";
+            console.log(obj.filename);
+            image.removeAttribute("src");
+            image.setAttribute("src", "file://" + obj.filename);
+            image.setAttribute("width", "100%");
+            image.setAttribute("height", "auto");
+            image.setAttribute("alt", "Image/Gif display mode");
+        }
     }
 })
 
@@ -62,6 +74,5 @@ socket.addEventListener('error', function (event) {
 })
 
 // Connect
-console.log('Connecting to ws://127.0.0.1:8080...');
+console.log('Videoplayer: Connecting to ws://127.0.0.1:8080...');
 MakeConnection();
-	
