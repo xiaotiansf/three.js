@@ -5,6 +5,7 @@ var videoplayer = document.getElementById('videoplayer');
 var picturedisplayer = document.getElementById('picturedisplayer');
 var image = document.getElementById('image');
 var threedmodel = document.getElementById('threedmodel');
+var model_js = null;
 
 // Functions to handle socket events
 function MakeConnection ()
@@ -69,12 +70,14 @@ socket.addEventListener('message', function (event) {
             let index = obj.filename.indexOf("image-uploads");
             let filename = obj.filename.substr(index);
             localStoragel.setItem("threedfilename", filename);
-            var js = document.createElement("script");
-            if (filename !== null && filename.length > 0) {
-                js.type = "module";
-                js.src = "glb_model.js";
+            if (model_js === null) {
+                var model_js = document.createElement("script");
+                if (filename !== null && filename.length > 0) {
+                    model_js.type = "module";
+                    model_js.src = "glb_model.js";
+                }
+                threedmodel.appendChild(model_js);
             }
-            threedmodel.appendChild(js);
         }
     }
 })
