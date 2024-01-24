@@ -108,5 +108,6 @@
 	"webgl2_multiple_rendertargets": [ "mrt" ],
 	"webgl2_multisampled_renderbuffers": [ "msaa" ],
 	"webxr_xr_ballshooter": [ "physics" ],
-	"video_template": [ "video" ]
+	"video_template": [ "video" ],
+	"glb_template": [ "glb" ]
 }

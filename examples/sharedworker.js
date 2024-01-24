@@ -4,6 +4,7 @@ const socket = new WebSocket('ws://127.0.0.1:8080');
 var videoplayer = document.getElementById('videoplayer');
 var picturedisplayer = document.getElementById('picturedisplayer');
 var image = document.getElementById('image');
+var threedmodel = document.getElementById('threedmodel');
 
 // Functions to handle socket events
 function MakeConnection ()
@@ -30,7 +31,9 @@ socket.addEventListener('message', function (event) {
         let json = cmd_string.slice(hashtag_index);
         const obj = JSON.parse(json);
         if (obj.cmd === 'video' ) {
+            localStorage.setItem("threedfilename", "");
             picturedisplayer.style.display = "none";
+            threedmodel.style.display = "none";
             videoplayer.style.display="block";
             console.log(obj.filename);
             console.log(obj.info);
@@ -40,12 +43,14 @@ socket.addEventListener('message', function (event) {
             console.log(obj.zoom);
             let index = obj.filename.indexOf("image-uploads");
             let filename = obj.filename.substr(index);
-            videoplayer.setAttribute("src", filename);
+            videoplayer.src = filename;
             videoplayer.play();
         }
         if (obj.cmd === 'image' || obj.cmd === 'gif') {
-            videoplayer.setAttribute("src", "");
+            localStorage.setItem("threedfilename", "");
             videoplayer.style.display="none";
+            videoplayer.src = "";
+            threedmodel.style.display = "none";
             picturedisplayer.style.display = "block";
             console.log(obj.filename);
             image.removeAttribute("src");
@@ -55,6 +60,21 @@ socket.addEventListener('message', function (event) {
             image.setAttribute("width", "100%");
             image.setAttribute("height", "auto");
             image.setAttribute("alt", "Image/Gif display mode");
+        }
+        else if (obj.cmd === 'model') {
+            picturedisplayer.style.display = "none";
+            videoplayer.style.display="none";
+            videoplayer.setAttribute("src", "");
+            threedmodel.style.display = "block";
+            let index = obj.filename.indexOf("image-uploads");
+            let filename = obj.filename.substr(index);
+            localStoragel.setItem("threedfilename", filename);
+            var js = document.createElement("script");
+            if (filename !== null && filename.length > 0) {
+                js.type = "module";
+                js.src = "glb_model.js";
+            }
+            threedmodel.appendChild(js);
         }
     }
 })
