@@ -21,18 +21,5 @@
             </script>
         </div>
         <script src="sharedworker.js"></script>
-        <script>
-        {
-            var threedmodel = document.getElementById('threedmodel');
-            var js = document.createElement("script");
-            let filename = localStorage.getItem("threedfilename");
-            if (filename !== null && filename.length > 0) {
-                js.type = "module";
-                js.src = "glb_model.js";
-            }
-            threedmodel.appendChild(js);
-        }
-        </script>
-        
     </body>
 </html>
