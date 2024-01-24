@@ -96,7 +96,7 @@ export class GlbModel {
             console.error( e );
         } );
        
-        window.onresize = function () {
+        window.onresize = () => {
 
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
