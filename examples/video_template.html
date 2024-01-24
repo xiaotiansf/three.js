@@ -11,12 +11,14 @@
             <img id="image" src="" width="100%" height="auto" alt="Image display mode" />
         </picture>
         <div id="threedcontainer"></div>
-		<script type="module">
-			import {GlbModel} from './glbmodel.js';
-			let glbmodel = new GlbModel();
-			glbmodel.Init();
-			glbmodel.load('models/gltf/LittlestTokyo.glb');
+        <script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
 		</script>
-        <script src="sharedworker.js"></script>
+        <script type="module" src="./sharedworker.js"></script>
     </body>
 </html>

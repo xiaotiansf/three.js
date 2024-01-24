@@ -1,3 +1,6 @@
+import {GlbModel} from './glbmodel.js';
+
+let glbmodel = null;
 const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8080');
@@ -5,7 +8,6 @@ var videoplayer = document.getElementById('videoplayer');
 var picturedisplayer = document.getElementById('picturedisplayer');
 var image = document.getElementById('image');
 var threedcontainer = document.getElementById('threedcontainer');
-var model_js = null;
 
 // Functions to handle socket events
 function MakeConnection ()
@@ -70,13 +72,12 @@ socket.addEventListener('message', function (event) {
             let index = obj.filename.indexOf("image-uploads");
             let filename = obj.filename.substr(index);
             localStoragel.setItem("threedfilename", filename);
-            if (model_js === null) {
-                var model_js = document.createElement("script");
-                if (filename !== null && filename.length > 0) {
-                    model_js.type = "module";
-                    model_js.src = "glb_model.js";
-                }
-                threedcontainer.appendChild(model_js);
+            if (filename !== null && filename.length > 0 && filename.indexOf(".glb") > 0) {
+                if (glbmodel === null) {
+                    glbmodel = new GlbModel();
+                    glbmodel.Init();    
+                } 
+                glbmodel.load(filename);
             }
         }
     }
