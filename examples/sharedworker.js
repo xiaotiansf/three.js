@@ -4,7 +4,7 @@ const socket = new WebSocket('ws://127.0.0.1:8080');
 var videoplayer = document.getElementById('videoplayer');
 var picturedisplayer = document.getElementById('picturedisplayer');
 var image = document.getElementById('image');
-var threedmodel = document.getElementById('threedmodel');
+var threedcontainer = document.getElementById('threedcontainer');
 var model_js = null;
 
 // Functions to handle socket events
@@ -34,7 +34,7 @@ socket.addEventListener('message', function (event) {
         if (obj.cmd === 'video' ) {
             localStorage.setItem("threedfilename", "");
             picturedisplayer.style.display = "none";
-            threedmodel.style.display = "none";
+            threedcontainer.style.display = "none";
             videoplayer.style.display="block";
             console.log(obj.filename);
             console.log(obj.info);
@@ -51,7 +51,7 @@ socket.addEventListener('message', function (event) {
             localStorage.setItem("threedfilename", "");
             videoplayer.style.display="none";
             videoplayer.src = "";
-            threedmodel.style.display = "none";
+            threedcontainer.style.display = "none";
             picturedisplayer.style.display = "block";
             console.log(obj.filename);
             image.removeAttribute("src");
@@ -66,7 +66,7 @@ socket.addEventListener('message', function (event) {
             picturedisplayer.style.display = "none";
             videoplayer.style.display="none";
             videoplayer.setAttribute("src", "");
-            threedmodel.style.display = "block";
+            threedcontainer.style.display = "block";
             let index = obj.filename.indexOf("image-uploads");
             let filename = obj.filename.substr(index);
             localStoragel.setItem("threedfilename", filename);
@@ -76,7 +76,7 @@ socket.addEventListener('message', function (event) {
                     model_js.type = "module";
                     model_js.src = "glb_model.js";
                 }
-                threedmodel.appendChild(model_js);
+                threedcontainer.appendChild(model_js);
             }
         }
     }

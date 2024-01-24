@@ -10,16 +10,15 @@
         <picture id="picturedisplayer">
             <img id="image" src="" width="100%" height="auto" alt="Image display mode" />
         </picture>
-        <div id="threedmodel">
-            <script type="importmap">
-            {
-                "imports": {
-                    "three": "../build/three.module.js",
-                    "three/addons/": "./jsm/"
-                }
+        <div id="threedcontainer"></div>
+        <script type="importmap">
+        {
+            "imports": {
+                "three": "../build/three.module.js",
+                "three/addons/": "./jsm/"
             }
-            </script>
-        </div>
+        }
+        </script>
         <script src="sharedworker.js"></script>
     </body>
 </html>

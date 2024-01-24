@@ -11,7 +11,7 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 let mixer;
 
 const clock = new THREE.Clock();
-const container = document.getElementById( 'container' );
+const container = document.getElementById( 'threedcontainer' );
 
 const stats = new Stats();
 container.appendChild( stats.dom );
