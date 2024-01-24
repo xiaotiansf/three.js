@@ -57,6 +57,13 @@ export class GlbModel {
 
         this.loader = new GLTFLoader();
         this.loader.setDRACOLoader( this.dracoLoader );
+
+        window.addEventListener('resize', function()
+        {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize( window.innrWidth, window.innerHeight );
+        });
     }
 
     animate = () => {
@@ -95,14 +102,10 @@ export class GlbModel {
         
             console.error( e );
         } );
-       
-        window.onresize = () => {
+    }
 
-            this.camera.aspect = window.innerWidth / window.innerHeight;
-            this.camera.updateProjectionMatrix();
-
-            this.renderer.setSize( window.innrWidth, window.innerHeight );
-        };
+    resize() {
+        
     }
 }
 
