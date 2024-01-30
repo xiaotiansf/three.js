@@ -49,15 +49,22 @@
 			import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
-			let mixer, camera, scene, renderer, stats, loader, controls, container;
+			let mixer, camera, scene, renderer, stats, loader, controls;
 
 			const clock = new THREE.Clock();
-
-			glbinit();
-			//fbxinit();
-			textureLoader();
-			glbmodelloader();
-			//fbxmodelloader();
+			const container = document.getElementById( 'container' );
+			stats = new Stats();
+			container.appendChild( stats.dom );
+      let modelformat = 'glb';
+			if (modelformat === 'glb') {
+				glbinit();
+				glbmodelloader();
+			}
+			else if (modelformat === 'fbx') {
+				fbxinit();
+				fbxmodelloader();
+			}
+			//textureLoader();
 
 			function textureLoader() {
 				// Test Load the background texture
@@ -82,11 +89,7 @@
 			}
 
 			function glbinit() {
-				container = document.getElementById( 'container' );
-
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
+				
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -144,7 +147,6 @@
 				grid.material.transparent = true;
 				scene.add( grid );
 
-				container = document.getElementById( 'container' );
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -155,16 +157,11 @@
 				controls.target.set( 0, 100, 0 );
 				controls.update();
 
-				// stats
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
 				window.addEventListener( 'resize', onWindowResize );
 			}
 
 			function glbload(filename) {
 				loader.load(filename, function ( gltf ) {
-
 					const model = gltf.scene;
 					var bbox = new THREE.Box3().setFromObject(model);
 					var cent = bbox.getCenter(new THREE.Vector3());
@@ -191,8 +188,6 @@
 						console.log("animation index: %d", index);
 						mixer.clipAction(animation).play();
 					});
-					//mixer.clipAction( gltf.animations[ 0 ] ).play();
-				
 					animate();
 				
 				}, undefined, function ( e ) {
@@ -223,7 +218,6 @@
 							child.receiveShadow = true;
 						}
 					} );
-
 					animate();
 
 				}, undefined, function ( e ) {
@@ -240,15 +234,10 @@
 			function animate() {
 
 				requestAnimationFrame( animate );
-
 				const delta = clock.getDelta();
-
 				mixer.update( delta );
-
 				controls.update();
-
 				stats.update();
-
 				renderer.render( scene, camera );
 			}
 
