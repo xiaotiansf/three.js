@@ -109,6 +109,8 @@
 					model.position.set( 1, 1, 0 );
 					//model.scale.set( 0.01, 0.01, 0.01 );
 					scene.add( model );
+					model.visible = true; //turn on/off model show
+					resize();
 				
 					mixer = new THREE.AnimationMixer( model );
 					gltf.animations.forEach ((animation, index) =>
@@ -128,14 +130,14 @@
 			};
 
 			window.onresize = function () {
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-
+				resize()
 			};
 
+			function resize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
 
 			function animate() {
 
