@@ -83,6 +83,12 @@
 			loader.setDRACOLoader( dracoLoader );
 			load('models/gltf/ferrari.glb');
 
+			// Test Load the background texture
+			var textureloader = new THREE.TextureLoader();
+			textureloader.load('textures/land_ocean_ice_cloud_2048.jpg' , function(texture) {
+				scene.background = texture;
+			});
+
 			function load(filename) {
 				loader.load(filename, function ( gltf ) {
 
@@ -144,7 +150,6 @@
 				stats.update();
 
 				renderer.render( scene, camera );
-
 			}
 
 
