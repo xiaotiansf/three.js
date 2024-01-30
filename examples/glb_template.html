@@ -47,27 +47,28 @@
 
 			import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 			import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
-			let mixer;
+			let mixer, camera, scene, renderer, stats;
 
 			const clock = new THREE.Clock();
 			const container = document.getElementById( 'container' );
 
-			const stats = new Stats();
+			stats = new Stats();
 			container.appendChild( stats.dom );
 
-			const renderer = new THREE.WebGLRenderer( { antialias: true } );
+			renderer = new THREE.WebGLRenderer( { antialias: true } );
 			renderer.setPixelRatio( window.devicePixelRatio );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			container.appendChild( renderer.domElement );
 
 			const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
-			const scene = new THREE.Scene();
+			scene = new THREE.Scene();
 			scene.background = new THREE.Color( 0xbfe3dd );
 			scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ), 0.04 ).texture;
 
-			const camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 100 );
+			camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 100 );
 			camera.position.set( 5, 2, 8 );
 
 			const controls = new OrbitControls( camera, renderer.domElement );
@@ -81,7 +82,9 @@
 
 			const loader = new GLTFLoader();
 			loader.setDRACOLoader( dracoLoader );
-			load('models/gltf/ferrari.glb');
+			glbload('models/gltf/ferrari.glb');
+
+			window.addEventListener( 'resize', onWindowResize );
 
 			// Test Load the background texture
 			var textureloader = new THREE.TextureLoader();
@@ -89,7 +92,7 @@
 				scene.background = texture;
 			});
 
-			function load(filename) {
+			function glbload(filename) {
 				loader.load(filename, function ( gltf ) {
 
 					const model = gltf.scene;
@@ -110,7 +113,7 @@
 					//model.scale.set( 0.01, 0.01, 0.01 );
 					scene.add( model );
 					model.visible = true; //turn on/off model show
-					resize();
+					onWindowResize();
 				
 					mixer = new THREE.AnimationMixer( model );
 					gltf.animations.forEach ((animation, index) =>
@@ -129,11 +132,7 @@
 				} );
 			};
 
-			window.onresize = function () {
-				resize()
-			};
-
-			function resize() {
+			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
