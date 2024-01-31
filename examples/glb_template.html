@@ -35,7 +35,11 @@
 		  {
 				"imports": {
 					"three": "../build/three.module.js",
-					"three/addons/": "./jsm/"
+					"three/addons/": "./jsm/",
+					"three/examples/jsm/utils/BufferGeometryUtils": "./jsm/utils/BufferGeometryUtils.js",
+					"three-mesh-bvh": "https://unpkg.com/three-mesh-bvh@0.5.23/build/index.module.js",
+					"web-ifc": "https://unpkg.com/web-ifc@0.0.36/web-ifc-api.js",
+					"web-ifc-three": "https://unpkg.com/web-ifc-three@0.0.126/IFCLoader.js"
 				}
 			}
 		</script>
@@ -55,6 +59,8 @@
 			import { ColladaLoader } from 'three/addons/loaders/ColladaLoader.js';
 			import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 			import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+			import { IFCLoader } from 'web-ifc-three';
+			import { IFCSPACE } from 'web-ifc';
 
 			let mixer, camera, scene, renderer, stats, loader, controls;
 			let video, videotexture;
@@ -63,7 +69,7 @@
 			const container = document.getElementById( 'container' );
 			stats = new Stats();
 			container.appendChild( stats.dom );
-      let modelformat = 'obj';
+      let modelformat = 'glb';
 			if (modelformat === 'glb') {
 				glbinit();
 				videotextureloader();
@@ -86,6 +92,11 @@
 				objinit();
 				objmodelloader();
 			}
+			else if (modelformat === 'ifc') {
+				ifcinit();
+				await ifcmodelloader();
+			}
+
 			//videotextureloader();
 			//textureLoader();
 
@@ -132,6 +143,10 @@
 
 			function objmodelloader() {
 				objload('models/obj/male02/', 'male02.mtl', 'male02.obj');
+			}
+
+			async function ifcmodelloader() {
+				await ifcload('models/ifc/rac_advanced_sample_project.ifc');
 			}
 
 			function glbinit() {
@@ -266,12 +281,62 @@
 				document.body.appendChild( renderer.domElement );
 
 				//
-				controls = new  OrbitControls( camera, renderer.domElement );
+				controls = new OrbitControls( camera, renderer.domElement );
 				controls.minDistance = 2;
 				controls.maxDistance = 5;
 				controls.autoRotate = true;
 				//
 				window.addEventListener( 'resize', onWindowResize );
+			}
+
+			function ifcinit() {
+
+				//Scene
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0x8cc7de );
+
+				//Camera
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+				camera.position.z = - 70;
+				camera.position.y = 25;
+				camera.position.x = 90;
+
+				//Initial cube
+				const geometry = new THREE.BoxGeometry();
+				const material = new THREE.MeshPhongMaterial( { color: 0xffffff } );
+				const cube = new THREE.Mesh( geometry, material );
+				scene.add( cube );
+
+				//Lights
+				const directionalLight1 = new THREE.DirectionalLight( 0xffeeff, 2.5 );
+				directionalLight1.position.set( 1, 1, 1 );
+				scene.add( directionalLight1 );
+
+				const directionalLight2 = new THREE.DirectionalLight( 0xffffff, 2.5 );
+				directionalLight2.position.set( - 1, 0.5, - 1 );
+				scene.add( directionalLight2 );
+
+				const ambientLight = new THREE.AmbientLight( 0xffffee, 0.75 );
+				scene.add( ambientLight );
+
+				//Renderer
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				document.body.appendChild( renderer.domElement );
+
+				//Controls
+				controls = new OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render );
+				controls.autoRotate = true;
+
+				window.addEventListener( 'resize', onWindowResize );
+
+				render();
+			}
+
+			function render() {
+				renderer.render( scene, camera );
 			}
 
 			function glbload(filename) {
@@ -412,6 +477,26 @@
 							scene.add( object );
 							animate();
 						}, onProgress );
+				} );
+			}
+
+			async function ifcload(filename) {
+				//Setup IFC Loader
+				const ifcLoader = new IFCLoader();
+				await ifcLoader.ifcManager.setWasmPath( 'https://unpkg.com/web-ifc@0.0.36/', true );
+
+				await ifcLoader.ifcManager.parser.setupOptionalCategories( {
+					[ IFCSPACE ]: false,
+				} );
+
+				await ifcLoader.ifcManager.applyWebIfcConfig( {
+					USE_FAST_BOOLS: true
+				} );
+
+				ifcLoader.load( filename, function ( model ) {
+
+					scene.add( model.mesh );
+					render();
 				} );
 			}
 
