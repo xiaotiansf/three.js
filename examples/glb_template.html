@@ -26,9 +26,13 @@
 			Model: <a href="https://artstation.com/artwork/1AGwX" target="_blank" rel="noopener">Littlest Tokyo</a> by
 			<a href="https://artstation.com/glenatron" target="_blank" rel="noopener">Glen Fox</a>, CC Attribution.
 		</div>
+		<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+			<source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>
+			<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+		</video>
 		//<script src="./sharedworker.js"></script>
 		<script type="importmap">
-			{
+		  {
 				"imports": {
 					"three": "../build/three.module.js",
 					"three/addons/": "./jsm/"
@@ -50,6 +54,7 @@
 			import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
 			let mixer, camera, scene, renderer, stats, loader, controls;
+			let video, videotexture;
 
 			const clock = new THREE.Clock();
 			const container = document.getElementById( 'container' );
@@ -58,6 +63,7 @@
       let modelformat = 'glb';
 			if (modelformat === 'glb') {
 				glbinit();
+				videotextureloader();
 				glbmodelloader();
 			}
 			else if (modelformat === 'fbx') {
@@ -68,6 +74,7 @@
 				glbinit();
 				gltfmodelloader();
 			}
+			//videotextureloader();
 			//textureLoader();
 
 			function textureLoader() {
@@ -76,6 +83,17 @@
 				textureloader.load('textures/land_ocean_ice_cloud_2048.jpg' , function(texture) {
 					scene.background = texture;
 				});
+			}
+
+			function videotextureloader() {
+				video = document.getElementById( 'video' );
+				video.play();
+				video.addEventListener( 'play', function () {
+					this.currentTime = 3;
+				} );
+				videotexture = new THREE.VideoTexture( video );
+				videotexture.colorSpace = THREE.SRGBColorSpace;
+				scene.background = videotexture;
 			}
 
 			function glbmodelloader() {
