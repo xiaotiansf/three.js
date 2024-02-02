@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 import Stats from 'three/addons/libs/stats.module.js';
-
+import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
@@ -21,14 +21,28 @@ const socket = new WebSocket('ws://127.0.0.1:8080');
 console.log('Models: Connecting to ws://127.0.0.1:8080...');
 MakeConnection();
 
-let mixer, camera, scene, renderer, stats, controls;
+let gui, mixer, camera, scene, renderer, stats, controls;
 let video, videotexture;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
 
+gui = new GUI({ width: 400 });
+gui.hide();
+
 scene = new THREE.Scene();
+
+const overlay_info = {
+  title: "ferrari",
+  artist: "ferrari",
+  date: "ferrari",
+  details: "ferrari",
+  medium: "ferrari",
+  credit: "ferrari",
+  artist_date: "",
+};
+setupArtGui(overlay_info);
 
 container.appendChild( stats.dom );
 render_commons_init();
@@ -81,6 +95,16 @@ function videotextureloader() {
 	videotexture = new THREE.VideoTexture( video );
 	videotexture.colorSpace = THREE.SRGBColorSpace;
 	scene.background = videotexture;
+}
+
+function setupArtGui(info) {
+  let folder = gui.addFolder( 'Art Information' );
+  folder.add( info, 'title' ).name( 'Title' );
+  info.artist_date = info.artist + "   " + info.date;
+  folder.add( info, 'artist_date').name( 'Artist and Date' );
+  folder.add( info, 'details' ).name( 'Details' );
+  folder.add( info, 'medium' ).name( 'Medium' );
+  folder.add( info, 'credit' ).name( 'Credit' );
 }
 
 function glbmodelloader() {
