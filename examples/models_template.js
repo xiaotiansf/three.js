@@ -35,13 +35,11 @@ gui.show(true);
 scene = new THREE.Scene();
 
 const overlay_info = {
-  title: "ferrari",
-  artist: "ferrari",
-  date: "ferrari",
-  details: "ferrari",
-  medium: "ferrari",
-  credit: "ferrari",
-  artist_date: "",
+  title: " ",
+  artist_date: " ",
+  details: " ",
+  medium: " ",
+  credit: " ",
 };
 setupArtGui(overlay_info);
 
@@ -100,7 +98,6 @@ function videotextureloader() {
 
 function setupArtGui(info) {
   gui.add( info, 'title' ).name( 'Title' );
-  info.artist_date = info.artist + "   " + info.date;
   gui.add( info, 'artist_date').name( 'Artist and Date' );
   gui.add( info, 'details' ).name( 'Details' );
   gui.add( info, 'medium' ).name( 'Medium' );
