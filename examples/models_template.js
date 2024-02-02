@@ -27,6 +27,9 @@ let video, videotexture;
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
+
+scene = new THREE.Scene();
+
 container.appendChild( stats.dom );
 render_commons_init();
 
@@ -121,7 +124,6 @@ function glbinit() {
   
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
-  scene = new THREE.Scene();
   scene.background = new THREE.Color( 0xbfe3dd );
   scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ), 0.04 ).texture;
 
@@ -142,7 +144,6 @@ function fbxinit() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.set( 100, 200, 300 );
 
-  scene = new THREE.Scene();
   scene.background = new THREE.Color( 0xa0a0a0 );
   scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
 
@@ -187,12 +188,8 @@ function daeinit() {
   camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 1, 1000 );
   camera.position.set( 15, 10, - 15 );
 
-  scene = new THREE.Scene();
-
   const gridHelper = new THREE.GridHelper( 10, 20, 0xc1c1c1, 0x8d8d8d );
   scene.add( gridHelper );
-
-  //
 
   const ambientLight = new THREE.AmbientLight( 0xffffff, 0.6 );
   scene.add( ambientLight );
@@ -216,9 +213,6 @@ function objinit() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20 );
   camera.position.z = 2.5;
 
-  // scene
-  scene = new THREE.Scene();
-
   const ambientLight = new THREE.AmbientLight( 0xffffff );
   scene.add( ambientLight );
 
@@ -226,19 +220,16 @@ function objinit() {
   camera.add( pointLight );
   scene.add( camera );
 
-  //
   controls = new OrbitControls( camera, renderer.domElement );
   controls.minDistance = 2;
   controls.maxDistance = 5;
   controls.autoRotate = true;
-  //
+  
   window.addEventListener( 'resize', onWindowResize );
 }
 
 function ifcinit() {
 
-  //Scene
-  scene = new THREE.Scene();
   scene.background = new THREE.Color( 0x8cc7de );
 
   //Camera
