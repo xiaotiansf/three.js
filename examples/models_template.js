@@ -99,13 +99,12 @@ function videotextureloader() {
 }
 
 function setupArtGui(info) {
-  let folder = gui.addFolder( ' ' );
-  folder.add( info, 'title' ).name( 'Title' );
+  gui.add( info, 'title' ).name( 'Title' );
   info.artist_date = info.artist + "   " + info.date;
-  folder.add( info, 'artist_date').name( 'Artist and Date' );
-  folder.add( info, 'details' ).name( 'Details' );
-  folder.add( info, 'medium' ).name( 'Medium' );
-  folder.add( info, 'credit' ).name( 'Credit' );
+  gui.add( info, 'artist_date').name( 'Artist and Date' );
+  gui.add( info, 'details' ).name( 'Details' );
+  gui.add( info, 'medium' ).name( 'Medium' );
+  gui.add( info, 'credit' ).name( 'Credit' );
 }
 
 function glbmodelloader() {
