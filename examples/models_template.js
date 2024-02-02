@@ -33,7 +33,7 @@ scene = new THREE.Scene();
 container.appendChild( stats.dom );
 render_commons_init();
 
-let modelformat = 'fbx';
+let modelformat = 'glb';
 if (modelformat === 'glb') {
 	glbinit();
 	videotextureloader();
@@ -270,23 +270,27 @@ function render() {
   renderer.render( scene, camera );
 }
 
+function modelscale(model) {
+  var bbox = new THREE.Box3().setFromObject(model);
+  var cent = bbox.getCenter(new THREE.Vector3());
+  var size = bbox.getSize(new THREE.Vector3());
+  //Rescale the object to normalized space
+  var maxAxis = Math.max(size.x, size.y, size.z);
+  model.scale.multiplyScalar(5.0 / maxAxis);
+  bbox.setFromObject(model);
+  bbox.getCenter(cent);
+  size = bbox.getSize(size);
+  console.log("x: %d y: %d z: %d", size.x, size.y, size.z);
+  //Reposition to 0,halfY,0
+  // model.position.copy(cent).multiplyScalar(-1);
+  // model.position.y-= (size.y * 0.5);
+  model.position.set( 1, 1, 0 );
+}
+
 function glbload(filename) {
   loader.load(filename, function ( gltf ) {
     const model = gltf.scene;
-    var bbox = new THREE.Box3().setFromObject(model);
-    var cent = bbox.getCenter(new THREE.Vector3());
-    var size = bbox.getSize(new THREE.Vector3());
-    //Rescale the object to normalized space
-    var maxAxis = Math.max(size.x, size.y, size.z);
-    model.scale.multiplyScalar(5.0 / maxAxis);
-    bbox.setFromObject(model);
-    bbox.getCenter(cent);
-    size = bbox.getSize(size);
-    console.log("x: %d y: %d z: %d", size.x, size.y, size.z);
-    //Reposition to 0,halfY,0
-    // model.position.copy(cent).multiplyScalar(-1);
-    // model.position.y-= (size.y * 0.5);
-    model.position.set( 1, 1, 0 );
+    modelscale(model);
     //model.scale.set( 0.01, 0.01, 0.01 );
     scene.add( model );
     model.visible = true; //turn on/off model show
@@ -340,20 +344,7 @@ function gltfload(filepath, filename) {
   loader.load(filename, async function ( gltf ) {
     const model = gltf.scene;
     await renderer.compileAsync( model, camera, scene );
-    var bbox = new THREE.Box3().setFromObject(model);
-    var cent = bbox.getCenter(new THREE.Vector3());
-    var size = bbox.getSize(new THREE.Vector3());
-    //Rescale the object to normalized space
-    var maxAxis = Math.max(size.x, size.y, size.z);
-    model.scale.multiplyScalar(5.0 / maxAxis);
-    bbox.setFromObject(model);
-    bbox.getCenter(cent);
-    size = bbox.getSize(size);
-    console.log("x: %d y: %d z: %d", size.x, size.y, size.z);
-    //Reposition to 0,halfY,0
-    // model.position.copy(cent).multiplyScalar(-1);
-    // model.position.y-= (size.y * 0.5);
-    model.position.set( 1, 1, 0 );
+    modelscale(model);
     //model.scale.set( 0.01, 0.01, 0.01 );
     scene.add( model );
     model.visible = true; //turn on/off model show
