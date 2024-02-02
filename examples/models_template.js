@@ -21,7 +21,7 @@ const socket = new WebSocket('ws://127.0.0.1:8080');
 console.log('Models: Connecting to ws://127.0.0.1:8080...');
 MakeConnection();
 
-let mixer, camera, scene, renderer, stats, loader, controls;
+let mixer, camera, scene, renderer, stats, controls;
 let video, videotexture;
 
 const clock = new THREE.Clock();
@@ -84,16 +84,10 @@ function videotextureloader() {
 }
 
 function glbmodelloader() {
-  const dracoLoader = new DRACOLoader();
-  dracoLoader.setDecoderPath( 'jsm/libs/draco/gltf/' );
-
-  loader = new GLTFLoader();
-  loader.setDRACOLoader( dracoLoader );
   glbload('models/gltf/ferrari.glb');
 }
 
 function fbxmodelloader() {
-  loader = new FBXLoader();
   fbxload('models/fbx/Samba Dancing.fbx');
 }
 
@@ -288,6 +282,10 @@ function modelscale(model) {
 }
 
 function glbload(filename) {
+  const dracoLoader = new DRACOLoader();
+  dracoLoader.setDecoderPath( 'jsm/libs/draco/gltf/' );
+  const loader = new GLTFLoader();
+  loader.setDRACOLoader( dracoLoader );
   loader.load(filename, function ( gltf ) {
     const model = gltf.scene;
     modelscale(model);
@@ -305,13 +303,12 @@ function glbload(filename) {
     animate();
 
   }, undefined, function ( e ) {
-
     console.error( e );
-
   });
 }
 
 function fbxload(filename) {
+  const loader = new FBXLoader();
   loader.load(filename, function ( object ) {
     object.position.set( 0, 1, 0 );
     //model.scale.set( 0.01, 0.01, 0.01 );
@@ -340,7 +337,7 @@ function fbxload(filename) {
 }
 
 function gltfload(filepath, filename) {
-  loader = new GLTFLoader().setPath( filepath );
+  const loader = new GLTFLoader().setPath( filepath );
   loader.load(filename, async function ( gltf ) {
     const model = gltf.scene;
     await renderer.compileAsync( model, camera, scene );
@@ -363,7 +360,7 @@ function gltfload(filepath, filename) {
 }
 
 function daeload(filename) {
-  loader = new ColladaLoader();
+  const loader = new ColladaLoader();
   loader.load(filename, function ( collada ) {
     const model = collada.scene;
     mixer = new THREE.AnimationMixer( model );
