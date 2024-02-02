@@ -29,7 +29,8 @@ const container = document.getElementById( 'container' );
 stats = new Stats();
 
 gui = new GUI({ width: 400 });
-gui.hide();
+gui.title("My Art Information");
+gui.show(true);
 
 scene = new THREE.Scene();
 
@@ -98,7 +99,7 @@ function videotextureloader() {
 }
 
 function setupArtGui(info) {
-  let folder = gui.addFolder( 'Art Information' );
+  let folder = gui.addFolder( ' ' );
   folder.add( info, 'title' ).name( 'Title' );
   info.artist_date = info.artist + "   " + info.date;
   folder.add( info, 'artist_date').name( 'Artist and Date' );
