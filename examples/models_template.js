@@ -18,7 +18,7 @@ const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8080');
 // Connect
-console.log('Videoplayer: Connecting to ws://127.0.0.1:8080...');
+console.log('Models: Connecting to ws://127.0.0.1:8080...');
 MakeConnection();
 
 let mixer, camera, scene, renderer, stats, loader, controls;
@@ -28,6 +28,8 @@ const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
 container.appendChild( stats.dom );
+render_commons_init();
+
 let modelformat = 'fbx';
 if (modelformat === 'glb') {
 	glbinit();
@@ -108,12 +110,15 @@ async function ifcmodelloader() {
   await ifcload('models/ifc/rac_advanced_sample_project.ifc');
 }
 
-function glbinit() {
+function render_commons_init() {
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   renderer.setPixelRatio( window.devicePixelRatio );
   renderer.setSize( window.innerWidth, window.innerHeight );
   container.appendChild( renderer.domElement );
+}
 
+function glbinit() {
+  
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
   scene = new THREE.Scene();
@@ -167,12 +172,8 @@ function fbxinit() {
   grid.material.transparent = true;
   scene.add( grid );
 
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
   renderer.shadowMap.enabled = true;
-  container.appendChild( renderer.domElement );
-
+  
   controls = new OrbitControls( camera, renderer.domElement );
   controls.target.set( 0, 100, 0 );
   controls.autoRotate = true;
@@ -199,13 +200,6 @@ function daeinit() {
   const directionalLight = new THREE.DirectionalLight( 0xffffff, 3 );
   directionalLight.position.set( 1.5, 1, - 1.5 );
   scene.add( directionalLight );
-
-  //
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  container.appendChild( renderer.domElement );
-
   //
   controls = new OrbitControls( camera, renderer.domElement );
   controls.screenSpacePanning = true;
@@ -231,12 +225,6 @@ function objinit() {
   const pointLight = new THREE.PointLight( 0xffffff, 15 );
   camera.add( pointLight );
   scene.add( camera );
-
-  //
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  document.body.appendChild( renderer.domElement );
 
   //
   controls = new OrbitControls( camera, renderer.domElement );
@@ -276,12 +264,6 @@ function ifcinit() {
 
   const ambientLight = new THREE.AmbientLight( 0xffffee, 0.75 );
   scene.add( ambientLight );
-
-  //Renderer
-  renderer = new THREE.WebGLRenderer( { antialias: true } );
-  renderer.setSize( window.innerWidth, window.innerHeight );
-  renderer.setPixelRatio( window.devicePixelRatio );
-  document.body.appendChild( renderer.domElement );
 
   //Controls
   controls = new OrbitControls( camera, renderer.domElement );
