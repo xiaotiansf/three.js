@@ -37,6 +37,11 @@ button {
 	z-index: 1; /* TODO Solve this in HTML */
 }
 
+footer {
+	text-align: center;
+	opacity: 1.0;
+}
+
 a, button, input, select {
 	pointer-events: auto;
 }
