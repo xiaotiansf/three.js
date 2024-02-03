@@ -48,7 +48,8 @@ a, button, input, select {
 
 .lil-gui {
 	z-index: 2 !important; /* TODO Solve this in HTML */
-	opacity: 0.6;
+	opacity: 1.0;
+	background: rgba(0,0,0,0.0);
 }
 
 @media all and ( max-width: 640px ) {
