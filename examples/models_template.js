@@ -510,11 +510,13 @@ socket.addEventListener('message', function (event) {
         let index = obj.filename.indexOf("image-uploads");
         let videofilename = obj.filename.substr(index);
         videotextureloader(videofilename);
+        imagetextureunloader();
       }
       else if (obj.cmd === 'image' || obj.cmd === 'gif') {
         let index = obj.filename.indexOf("image-uploads");
         let imagefilename = obj.filename.substr(index);
         imagetextureLoader(imagefilename);
+        videotextureunloader();
       }
       else if (obj.cmd === 'model') {
           let index = obj.filename.indexOf("image-uploads");
