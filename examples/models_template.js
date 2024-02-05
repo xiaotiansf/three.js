@@ -92,8 +92,9 @@ function imagetextureunloader() {
   }
 }
 
-function videotextureloader() {
+function videotextureloader(videofilename) {
 	video = document.getElementById( 'video' );
+  video.src = videofilename;
 	video.play();
 	video.addEventListener( 'play', function () {
 		this.currentTime = 0;
@@ -506,6 +507,9 @@ socket.addEventListener('message', function (event) {
         setupArtGui(overlay_info);
       }
       if (obj.cmd === 'video' ) {
+        let index = obj.filename.indexOf("image-uploads");
+        let videofilename = obj.filename.substr(index);
+        videotextureloader(videofilename);
       }
       else if (obj.cmd === 'image' || obj.cmd === 'gif') {
         let index = obj.filename.indexOf("image-uploads");
