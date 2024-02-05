@@ -27,7 +27,9 @@ let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8181');
 
 let gui, mixer, camera, scene, renderer, stats, controls;
-let video, videotexture;
+let video;
+let videotexture = null;
+let imagetexture = null;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
@@ -76,12 +78,18 @@ else if (modelformat === 'ifc') {
 //videotextureloader();
 //textureLoader();
 
-function textureLoader() {
+function imagetextureLoader(filename) {
 	// Test Load the background texture
-	var textureloader = new THREE.TextureLoader();
-	textureloader.load('textures/land_ocean_ice_cloud_2048.jpg' , function(texture) {
-		scene.background = texture;
-	});
+  imagetexture = new THREE.TextureLoader().load(filename);
+	scene.background = imagetexture;
+}
+
+function imagetextureunloader() {
+	// Test Unload the background texture
+  if (imagetexture !== null) {
+    imagetexture.dispose();
+    imagetexture = null;
+  }
 }
 
 function videotextureloader() {
@@ -93,6 +101,15 @@ function videotextureloader() {
 	videotexture = new THREE.VideoTexture( video );
 	videotexture.colorSpace = THREE.SRGBColorSpace;
 	scene.background = videotexture;
+}
+
+function videotextureunloader() {
+	video = document.getElementById( 'video' );
+	video.stop();
+  if (videotexture !== null) {
+    videotexture.dispose();
+	  videotexture = null;
+  }
 }
 
 function setupArtGui(info) {
