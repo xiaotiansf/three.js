@@ -14,12 +14,17 @@ import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { IFCLoader } from 'web-ifc-three';
 import { IFCSPACE } from 'web-ifc';
 
+const overlay_info = {
+  title: " ",
+  artist_date: " ",
+  details: " ",
+  medium: " ",
+  credit: " ",
+};
+
 const timeout = 5000;
 let retrying = true;
-const socket = new WebSocket('ws://127.0.0.1:8080');
-// Connect
-console.log('Models: Connecting to ws://127.0.0.1:8080...');
-MakeConnection();
+const socket = new WebSocket('ws://127.0.0.1:8181');
 
 let gui, mixer, camera, scene, renderer, stats, controls;
 let video, videotexture;
@@ -29,19 +34,13 @@ const container = document.getElementById( 'container' );
 stats = new Stats();
 
 gui = new GUI({ width: 400 });
-gui.title("My Art Information");
+gui.title("Art Information");
 gui.show(true);
+// Connect
+console.log('Models: Connecting to ws://127.0.0.1:8181...');
+MakeConnection();
 
 scene = new THREE.Scene();
-
-const overlay_info = {
-  title: " ",
-  artist_date: " ",
-  details: " ",
-  medium: " ",
-  credit: " ",
-};
-setupArtGui(overlay_info);
 
 container.appendChild( stats.dom );
 render_commons_init();
@@ -97,11 +96,11 @@ function videotextureloader() {
 }
 
 function setupArtGui(info) {
-  gui.add( info, 'title' ).name( 'Title' );
-  gui.add( info, 'artist_date').name( 'Artist and Date' );
-  gui.add( info, 'details' ).name( 'Details' );
-  gui.add( info, 'medium' ).name( 'Medium' );
-  gui.add( info, 'credit' ).name( 'Credit' );
+  gui.add( info, 'title' ).name( info.title );
+  gui.add( info, 'artist_date').name( info.artist_date );
+  gui.add( info, 'details' ).name( info.details );
+  gui.add( info, 'medium' ).name( info.medium );
+  gui.add( info, 'credit' ).name( info.credit );
 }
 
 function glbmodelloader() {
@@ -481,9 +480,18 @@ socket.addEventListener('message', function (event) {
   if (hashtag_index === 0) {
       let json = cmd_string.slice(hashtag_index);
       const obj = JSON.parse(json);
+      if (obj.cmd === 'video' || obj.cmd === 'image' || obj.cmd === 'gif' || obj.cmd === 'model') {
+        overlay_info.title = obj.info.title;
+        overlay_info.artist_date = obj.info.artist + "   " + obj.info.date;
+        overlay_info.details = obj.info.details;
+        overlay_info.medium = obj.info.medium;
+        overlay_info.credit = obj.info.credit;
+        setupArtGui(overlay_info);
+      }
       if (obj.cmd === 'video' ) {
       }
       if (obj.cmd === 'image' || obj.cmd === 'gif') {
+
       }
       else if (obj.cmd === 'model') {
           let index = obj.filename.indexOf("image-uploads");
