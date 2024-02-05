@@ -50,7 +50,7 @@ render_commons_init();
 let modelformat = 'glb';
 if (modelformat === 'glb') {
 	glbinit();
-	videotextureloader();
+	//videotextureloader();
 	glbmodelloader();
 }
 else if (modelformat === 'fbx') {
@@ -507,8 +507,10 @@ socket.addEventListener('message', function (event) {
       }
       if (obj.cmd === 'video' ) {
       }
-      if (obj.cmd === 'image' || obj.cmd === 'gif') {
-
+      else if (obj.cmd === 'image' || obj.cmd === 'gif') {
+        let index = obj.filename.indexOf("image-uploads");
+        let imagefilename = obj.filename.substr(index);
+        imagetextureLoader(imagefilename);
       }
       else if (obj.cmd === 'model') {
           let index = obj.filename.indexOf("image-uploads");
