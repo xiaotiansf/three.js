@@ -96,7 +96,7 @@ function videotextureloader() {
 	video = document.getElementById( 'video' );
 	video.play();
 	video.addEventListener( 'play', function () {
-		this.currentTime = 3;
+		this.currentTime = 0;
 	} );
 	videotexture = new THREE.VideoTexture( video );
 	videotexture.colorSpace = THREE.SRGBColorSpace;
