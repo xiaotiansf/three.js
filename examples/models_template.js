@@ -22,6 +22,9 @@ const overlay_info = {
   credit: " ",
 };
 
+const image_uploads = "image-uploads";
+const threed_uploads = "image-uploads/cg";
+
 const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8181');
@@ -106,7 +109,7 @@ function videotextureloader(videofilename) {
 
 function videotextureunloader() {
 	video = document.getElementById( 'video' );
-	video.stop();
+	video.pause();
   if (videotexture !== null) {
     videotexture.dispose();
 	  videotexture = null;
@@ -507,20 +510,32 @@ socket.addEventListener('message', function (event) {
         setupArtGui(overlay_info);
       }
       if (obj.cmd === 'video' ) {
-        let index = obj.filename.indexOf("image-uploads");
+        let index = obj.filename.indexOf(image_uploads);
         let videofilename = obj.filename.substr(index);
         videotextureloader(videofilename);
         imagetextureunloader();
       }
       else if (obj.cmd === 'image' || obj.cmd === 'gif') {
-        let index = obj.filename.indexOf("image-uploads");
+        let index = obj.filename.indexOf(image_uploads);
         let imagefilename = obj.filename.substr(index);
         imagetextureLoader(imagefilename);
         videotextureunloader();
       }
       else if (obj.cmd === 'model') {
-          let index = obj.filename.indexOf("image-uploads");
-          let zipfilename = obj.filename.substr(index);
+        let index = obj.filename.lastIndexOf("/");
+        let zipfilename = obj.filename.substr(index);
+        let asset_dir = threed_uploads + zipfilename.substr(0, zipfilename.lastIndexOf("."));
+        $.getJSON(asset_dir, files => {
+          console.log(`${asset_dir}: ${files}`);
+          var items = files;
+            // now apply your filter:
+          items = files.filter(function(file) {
+            // return the filtered value
+            if (file.indexOf('.glb')) {
+              console.log('Found glb file');
+            }
+          });
+        });
       }
   }
 })
