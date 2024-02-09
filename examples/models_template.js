@@ -46,37 +46,20 @@ console.log('Models: Connecting to ws://127.0.0.1:8181...');
 MakeConnection();
 
 scene = new THREE.Scene();
+//just add something to show initially
+const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+const material = new THREE.MeshNormalMaterial();
+const mesh = new THREE.Mesh( geometry, material );
+scene.add( mesh );
+const width = window.innerWidth, height = window.innerHeight;
+camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
+camera.position.z = 1;
 
 container.appendChild( stats.dom );
-render_commons_init();
-
-let modelformat = 'glb';
-if (modelformat === 'glb') {
-	glbinit();
-	//videotextureloader();
-	glbmodelloader();
-}
-else if (modelformat === 'fbx') {
-	fbxinit();
-	fbxmodelloader();
-}
-else if (modelformat === 'gltf') {
-	glbinit();
-	gltfmodelloader();
-}
-else if (modelformat === 'dae') {
-	daeinit();
-	daemodelloader();
-}
-else if (modelformat === 'obj') {
-	mixer = null;
-	objinit();
-	objmodelloader();
-}
-else if (modelformat === 'ifc') {
-	ifcinit();
-	await ifcmodelloader();
-}
+renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( width, height );
+renderer.setAnimationLoop( dummyanimation );
+document.body.appendChild( renderer.domElement );
 
 //videotextureloader();
 //textureLoader();
@@ -124,30 +107,6 @@ function setupArtGui(info) {
   gui.add( info, 'credit' ).name( info.credit );
 }
 
-function glbmodelloader() {
-  glbload('models/gltf/ferrari.glb');
-}
-
-function fbxmodelloader() {
-  fbxload('models/fbx/Samba Dancing.fbx');
-}
-
-function gltfmodelloader() {
-  gltfload('models/gltf/DamagedHelmet/glTF/', 'DamagedHelmet.gltf');
-}
-
-function daemodelloader() {
-  daeload('./models/collada/stormtrooper/stormtrooper.dae');
-}
-
-function objmodelloader() {
-  objload('models/obj/male02/', 'male02.mtl', 'male02.obj');
-}
-
-async function ifcmodelloader() {
-  await ifcload('models/ifc/rac_advanced_sample_project.ifc');
-}
-
 function render_commons_init() {
   renderer = new THREE.WebGLRenderer( { antialias: true } );
   renderer.setPixelRatio( window.devicePixelRatio );
@@ -157,6 +116,7 @@ function render_commons_init() {
 
 function glbinit() {
   
+  render_commons_init();
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
   scene.background = new THREE.Color( 0xbfe3dd );
@@ -477,6 +437,12 @@ function animate() {
   renderer.render( scene, camera );
 }
 
+function dummyanimation( time ) {
+	mesh.rotation.x = time / 2000;
+	mesh.rotation.y = time / 1000;
+	renderer.render( scene, camera );
+}
+
 // Functions to handle socket events
 function MakeConnection ()
 {
@@ -533,6 +499,10 @@ socket.addEventListener('message', function (event) {
             // return the filtered value
             if (file.indexOf('.glb')) {
               console.log('Found glb file');
+              scene.remove(mesh);
+              glbinit();
+              let modelfilename = asset_dir + '/' + file;
+              glbload(modelfilename);
             }
           });
         });
