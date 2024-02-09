@@ -32,11 +32,13 @@ const socket = new WebSocket('ws://127.0.0.1:8181');
 let gui, mixer, camera, scene, renderer, stats, controls;
 let video;
 let videotexture = null;
-let imagetexture = null;
+let imagetexture = null; 
+let mesh;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
+container.appendChild( stats.dom );
 
 gui = new GUI({ width: 400 });
 gui.title("Art Information");
@@ -45,22 +47,22 @@ gui.show(true);
 console.log('Models: Connecting to ws://127.0.0.1:8181...');
 MakeConnection();
 
-scene = new THREE.Scene();
-//just add something to show initially
-const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
-const material = new THREE.MeshNormalMaterial();
-const mesh = new THREE.Mesh( geometry, material );
-scene.add( mesh );
-mesh.visible = false;
-const width = window.innerWidth, height = window.innerHeight;
-camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
-camera.position.z = 1;
-
-container.appendChild( stats.dom );
-renderer = new THREE.WebGLRenderer( { antialias: true } );
-renderer.setSize( width, height );
-renderer.setAnimationLoop( dummyanimation );
-document.body.appendChild( renderer.domElement );
+function dummymodelloader() {
+  scene = new THREE.Scene();
+  //just add something to show initially
+  const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+  const material = new THREE.MeshNormalMaterial();
+  mesh = new THREE.Mesh( geometry, material );
+  scene.add( mesh );
+  mesh.visible = false;
+  const width = window.innerWidth, height = window.innerHeight;
+  camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
+  camera.position.z = 1;
+  renderer = new THREE.WebGLRenderer( { antialias: true } );
+  renderer.setSize( width, height );
+  renderer.setAnimationLoop( dummyanimation );
+  document.body.appendChild( renderer.domElement );
+}
 
 //videotextureloader();
 //textureLoader();
@@ -116,7 +118,7 @@ function render_commons_init() {
 }
 
 function glbinit() {
-  
+  scene = new THREE.Scene();
   render_commons_init();
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
@@ -136,7 +138,8 @@ function glbinit() {
 }
 
 function fbxinit() {
-
+  scene = new THREE.Scene();
+  render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.set( 100, 200, 300 );
 
@@ -180,7 +183,8 @@ function fbxinit() {
 }
 
 function daeinit() {
-
+  scene = new THREE.Scene();
+  render_commons_init();
   camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 1, 1000 );
   camera.position.set( 15, 10, - 15 );
 
@@ -205,7 +209,8 @@ function daeinit() {
 }
 
 function objinit() {
-
+  scene = new THREE.Scene();
+  render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20 );
   camera.position.z = 2.5;
 
@@ -225,7 +230,8 @@ function objinit() {
 }
 
 function ifcinit() {
-
+  scene = new THREE.Scene();
+  render_commons_init();
   scene.background = new THREE.Color( 0x8cc7de );
 
   //Camera
@@ -479,12 +485,14 @@ socket.addEventListener('message', function (event) {
       if (obj.cmd === 'video' ) {
         let index = obj.filename.indexOf(image_uploads);
         let videofilename = obj.filename.substr(index);
+        dummymodelloader();
         videotextureloader(videofilename);
         imagetextureunloader();
       }
       else if (obj.cmd === 'image' || obj.cmd === 'gif') {
         let index = obj.filename.indexOf(image_uploads);
         let imagefilename = obj.filename.substr(index);
+        dummymodelloader();
         imagetextureLoader(imagefilename);
         videotextureunloader();
       }
@@ -500,7 +508,6 @@ socket.addEventListener('message', function (event) {
             // return the filtered value
             if (file.indexOf('.glb')) {
               console.log('Found glb file');
-              scene.remove(mesh);
               glbinit();
               let modelfilename = asset_dir + '/' + file;
               glbload(modelfilename);
