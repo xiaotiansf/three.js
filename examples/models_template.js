@@ -29,11 +29,12 @@ const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8181');
 
-let gui, mixer, camera, scene, renderer, stats, controls;
+let gui, mixer, camera, renderer, stats, controls;
 let video;
 let videotexture = null;
 let imagetexture = null; 
 let mesh;
+let scene = null;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
@@ -490,14 +491,18 @@ socket.addEventListener('message', function (event) {
       if (obj.cmd === 'video' ) {
         let index = obj.filename.indexOf(image_uploads);
         let videofilename = obj.filename.substr(index);
-        dummymodelloader();
+        if (scene === undefined || scene === null) {
+          dummymodelloader();
+        }
         videotextureloader(videofilename);
         imagetextureunloader();
       }
       else if (obj.cmd === 'image' || obj.cmd === 'gif') {
         let index = obj.filename.indexOf(image_uploads);
         let imagefilename = obj.filename.substr(index);
-        dummymodelloader();
+        if (scene === undefined || scene === null) {
+          dummymodelloader();
+        }
         imagetextureLoader(imagefilename);
         videotextureunloader();
         //$("#artinfo").show();
