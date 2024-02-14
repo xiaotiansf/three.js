@@ -488,16 +488,18 @@ socket.addEventListener('message', function (event) {
         overlay_info.credit = obj.info.credit;
         setupArtGui(overlay_info);
       }
-      if (obj.cmd === 'video' ) {
+      if (obj.cmd === 'video' || obj.cmd === 'gif' ) {
         let index = obj.filename.indexOf(image_uploads);
         let videofilename = obj.filename.substr(index);
+        let  filename_length = videofilename.length;
+        videofilename = videofilename.substr(0, filename_length - 4) + '.mp4';
         if (scene === undefined || scene === null) {
           dummymodelloader();
         }
         videotextureloader(videofilename);
         imagetextureunloader();
       }
-      else if (obj.cmd === 'image' || obj.cmd === 'gif') {
+      else if (obj.cmd === 'image' ) {
         let index = obj.filename.indexOf(image_uploads);
         let imagefilename = obj.filename.substr(index);
         if (scene === undefined || scene === null) {
