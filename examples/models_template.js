@@ -33,7 +33,7 @@ let gui, mixer, camera, renderer, stats, controls;
 let video;
 let videotexture = null;
 let imagetexture = null; 
-let mesh;
+let mesh = null;
 let scene = null;
 
 const clock = new THREE.Clock();
@@ -51,11 +51,11 @@ MakeConnection();
 function dummymodelloader() {
   scene = new THREE.Scene();
   //just add something to show initially
-  const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
-  const material = new THREE.MeshNormalMaterial();
-  mesh = new THREE.Mesh( geometry, material );
-  scene.add( mesh );
-  mesh.visible = false;
+  // const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
+  // const material = new THREE.MeshNormalMaterial();
+  // mesh = new THREE.Mesh( geometry, material );
+  // scene.add( mesh );
+  // mesh.visible = false;
   const width = window.innerWidth, height = window.innerHeight;
   camera = new THREE.PerspectiveCamera( 70, width / height, 0.01, 10 );
   camera.position.z = 1;
@@ -451,8 +451,10 @@ function animate() {
 }
 
 function dummyanimation( time ) {
-	mesh.rotation.x = time / 2000;
-	mesh.rotation.y = time / 1000;
+  if (mesh !== null) {
+    mesh.rotation.x = time / 2000;
+	  mesh.rotation.y = time / 1000;
+  }
 	renderer.render( scene, camera );
 }
 
