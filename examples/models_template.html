@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - animation - keyframes</title>
+		<title>Canvia Image, Video and 3D Model</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -20,11 +20,12 @@
 	<body>
 
 		<div id="container"></div>
-
 		<div id="info">
-			<a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - animation - keyframes<br/>
-			Model: <a href="https://artstation.com/artwork/1AGwX" target="_blank" rel="noopener">Littlest Tokyo</a> by
-			<a href="https://artstation.com/glenatron" target="_blank" rel="noopener">Glen Fox</a>, CC Attribution.
+			<div id="Title">Title of the Art.</div>
+			<div id="Artist_Date">Artist and Date of the Art.</div>
+			<div id="Details">Details of the Art.</div>
+			<div id="Medium">Medium of the Art.</div>
+			<div id="Credit">Credit of the Art.</div>
 		</div>
 		<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
 			<source src="" type="video/mp4">
@@ -43,12 +44,12 @@
 		</script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 		<script type="module" src="./models_template.js"></script>
-		<footer id="artinfo" style="display:none">
+		<!-- <footer id="artinfo" style="display:none">
 			<div id="Title">Title of the Art.</div>
 			<div id="Artist_Date">Artist and Date of the Art.</div>
-			<div id="Metails">Metails of the Art.</div>
+			<div id="Details">Details of the Art.</div>
 			<div id="Medium">Medium of the Art.</div>
 			<div id="Credit">Credit of the Art.</div>
-		</footer>
+		</footer> -->
 	</body>
 </html>

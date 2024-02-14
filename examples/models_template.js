@@ -108,6 +108,11 @@ function setupArtGui(info) {
   gui.add( info, 'details' ).name( info.details );
   gui.add( info, 'medium' ).name( info.medium );
   gui.add( info, 'credit' ).name( info.credit );
+  document.getElementById("Title").innerHTML = info.title;
+  document.getElementById("Artist_Date").innerHTML = info.artist_date;
+  document.getElementById("Details").innerHTML = info.details;
+  document.getElementById("Medium").innerHTML = info.medium;
+  document.getElementById("Credit").innerHTML = info.credit;
 }
 
 function render_commons_init() {
