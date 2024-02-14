@@ -495,6 +495,7 @@ socket.addEventListener('message', function (event) {
         dummymodelloader();
         imagetextureLoader(imagefilename);
         videotextureunloader();
+        //$("#artinfo").show();
       }
       else if (obj.cmd === 'model') {
         let index = obj.filename.lastIndexOf("/");
