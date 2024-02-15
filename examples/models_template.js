@@ -36,6 +36,7 @@ let imagetexture = null;
 let mesh = null;
 let scene = null;
 let renderer = null;
+let animation_id = null;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
@@ -471,7 +472,7 @@ function onWindowResize() {
 }
 
 function animate() {
-  requestAnimationFrame( animate );
+  animation_id = requestAnimationFrame( animate );
   const delta = clock.getDelta();
   if (mixer !== null) {
     mixer.update( delta );
@@ -490,6 +491,10 @@ function dummyanimation( time ) {
 }
 
 function Remove() {
+  if (animation_id !== undefined && animation_id !== null) {
+    cancelAnimationFrame(animation_id);
+  }
+  animation_id = null;
   while(scene.children.length > 0){ 
     scene.remove(scene.children[0]); 
   }
