@@ -494,7 +494,7 @@ function Remove() {
     scene.remove(scene.children[0]); 
   }
   if (renderer !== null && renderer !==undefined) {
-    document.body.removeChild(renderer.domElement);
+    renderer.domElement.remove();
   }
 }
 
