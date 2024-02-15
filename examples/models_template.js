@@ -514,6 +514,14 @@ function MakeConnection ()
     }
 }
 
+function findNthOccurence(str, nth, char) {
+  let index = 0
+  for (let i = 0; i < nth; i += 1) {
+    if (index !== -1) index = str.indexOf(char, index + 1);
+  }
+  return index;
+}
+
 // Listen for messages
 socket.addEventListener('message', function (event) {
   console.log(event.data.toString());
@@ -550,7 +558,13 @@ socket.addEventListener('message', function (event) {
       else if (obj.cmd === 'model') {
         let index = obj.filename.lastIndexOf("/");
         let zipfilename = obj.filename.substr(index);
+        let is_local = zipfilename.indexOf('/local-') === 0;
         let asset_dir = threed_uploads + zipfilename.substr(0, zipfilename.lastIndexOf("."));
+        if (is_local) {
+          let pos = findNthOccurence(asset_dir, 3, '-');
+          asset_dir = asset_dir.substring(0, pos + 1);
+        }
+        console.log(`asset_dir: ${asset_dir}`);
         $.getJSON(asset_dir, files => {
           console.log(`${asset_dir}: ${files}`);
           var items = files;
