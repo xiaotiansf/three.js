@@ -54,9 +54,7 @@ function dummymodelloader() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   //just add something to show initially
   // const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
   // const material = new THREE.MeshNormalMaterial();
@@ -134,9 +132,7 @@ function glbinit() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   render_commons_init();
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
@@ -159,9 +155,7 @@ function fbxinit() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.set( 100, 200, 300 );
@@ -209,9 +203,7 @@ function daeinit() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 1, 1000 );
   camera.position.set( 15, 10, - 15 );
@@ -240,9 +232,7 @@ function objinit() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20 );
   camera.position.z = 2.5;
@@ -266,9 +256,7 @@ function ifcinit() {
   if (scene !== null) {
     Remove();
   }
-  else {
-    scene = new THREE.Scene();
-  }
+  scene = new THREE.Scene();
   render_commons_init();
   scene.background = new THREE.Color( 0x8cc7de );
 
@@ -501,6 +489,9 @@ function Remove() {
   if (renderer !== null && renderer !==undefined) {
     renderer.domElement.remove();
   }
+  scene = null;
+  camera = null;
+  controls = null;
 }
 
 // Functions to handle socket events
