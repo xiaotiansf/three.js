@@ -29,12 +29,13 @@ const timeout = 5000;
 let retrying = true;
 const socket = new WebSocket('ws://127.0.0.1:8181');
 
-let gui, mixer, camera, renderer, stats, controls;
+let gui, mixer, camera, stats, controls;
 let video;
 let videotexture = null;
 let imagetexture = null; 
 let mesh = null;
 let scene = null;
+let renderer = null;
 
 const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
@@ -49,7 +50,12 @@ console.log('Models: Connecting to ws://127.0.0.1:8181...');
 MakeConnection();
 
 function dummymodelloader() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   //just add something to show initially
   // const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
   // const material = new THREE.MeshNormalMaterial();
@@ -124,7 +130,12 @@ function render_commons_init() {
 }
 
 function glbinit() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   render_commons_init();
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
 
@@ -144,7 +155,12 @@ function glbinit() {
 }
 
 function fbxinit() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
   camera.position.set( 100, 200, 300 );
@@ -189,7 +205,12 @@ function fbxinit() {
 }
 
 function daeinit() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 1, 1000 );
   camera.position.set( 15, 10, - 15 );
@@ -215,7 +236,12 @@ function daeinit() {
 }
 
 function objinit() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20 );
   camera.position.z = 2.5;
@@ -236,7 +262,12 @@ function objinit() {
 }
 
 function ifcinit() {
-  scene = new THREE.Scene();
+  if (scene !== null) {
+    Remove();
+  }
+  else {
+    scene = new THREE.Scene();
+  }
   render_commons_init();
   scene.background = new THREE.Color( 0x8cc7de );
 
@@ -458,6 +489,15 @@ function dummyanimation( time ) {
 	renderer.render( scene, camera );
 }
 
+function Remove() {
+  while(scene.children.length > 0){ 
+    scene.remove(scene.children[0]); 
+  }
+  if (renderer !== null && renderer !==undefined) {
+    document.body.removeChild(renderer.domElement);
+  }
+}
+
 // Functions to handle socket events
 function MakeConnection ()
 {
@@ -494,19 +534,15 @@ socket.addEventListener('message', function (event) {
         let index = obj.filename.indexOf(image_uploads);
         let videofilename = obj.filename.substr(index);
         let  filename_length = videofilename.length;
-        videofilename = videofilename.substr(0, filename_length - 4) + '.mp4';
-        if (scene === undefined || scene === null) {
-          dummymodelloader();
-        }
+        videofilename = videofilename.substr(0, filename_length - 4) + '.mp4'
+        dummymodelloader();
         videotextureloader(videofilename);
         imagetextureunloader();
       }
       else if (obj.cmd === 'image' ) {
         let index = obj.filename.indexOf(image_uploads);
-        let imagefilename = obj.filename.substr(index);
-        if (scene === undefined || scene === null) {
-          dummymodelloader();
-        }
+        let imagefilename = obj.filename.substr(index)
+        dummymodelloader();
         imagetextureLoader(imagefilename);
         videotextureunloader();
         //$("#artinfo").show();
