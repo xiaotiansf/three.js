@@ -10,7 +10,14 @@
 				background-color: #bfe3dd;
 				color: #000;
 			}
-
+			canvas {
+				position: fixed;
+				top: 0;
+				left: 0;
+				display: none;
+				width: 100%;
+				height: 100vh;
+			}
 			a {
 				color: #2983ff;
 			}
@@ -18,8 +25,8 @@
 	</head>
 
 	<body>
-
-		<div id="container"></div>
+		<canvas></canvas>
+		<div id="container" style="display:none"></div>
 		<div id="info">
 			<div id="Title">Title of the Art.</div>
 			<div id="Artist_Date">Artist and Date of the Art.</div>

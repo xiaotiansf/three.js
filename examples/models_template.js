@@ -42,6 +42,7 @@ const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
 container.appendChild( stats.dom );
+var canvas = document.getElementsByTagName("canvas")[0];
 
 gui = new GUI({ width: 400 });
 gui.title("Art Information");
@@ -50,11 +51,89 @@ gui.show(true);
 console.log('Models: Connecting to ws://127.0.0.1:8181...');
 MakeConnection();
 
-function dummymodelloader() {
+function imageloader(imagefilename) {
   if (scene !== null) {
     Remove();
   }
   scene = new THREE.Scene();
+  scene.matrixWorldAutoUpdate = true;
+  canvas.style.display = "block";
+  // NOTE: the width and height of the canvas
+	var size = {
+		getWidth: function(){return canvas.offsetWidth;},
+		getHeight: function(){return canvas.offsetHeight;}
+	};
+
+	var windowSize = function(withScrollBar) {
+		var wid = 0;
+		var hei = 0;
+		if (typeof window.innerWidth != "undefined") {
+			wid = window.innerWidth;
+			hei = window.innerHeight;
+		}
+		else {
+			if (document.documentElement.clientWidth == 0) {
+				wid = document.body.clientWidth;
+				hei = document.body.clientHeight;
+			}
+			else {
+				wid = document.documentElement.clientWidth;
+				hei = document.documentElement.clientHeight;
+			}
+		}
+		return { width: wid - (withScrollBar ? (wid - document.body.offsetWidth + 1) : 0), height: hei };
+	};
+
+	var setBackground = function (scene, backgroundImageWidth, backgroundImageHeight) {
+		if (scene.background) {
+			var factor = (backgroundImageWidth / backgroundImageHeight) / (size.getWidth() / size.getHeight());
+			scene.background.offset.x = factor > 1 ? (1 - 1 / factor) / 2 : 0;
+			scene.background.offset.y = factor > 1 ? 0 : (1 - factor) / 2;
+			scene.background.repeat.x = factor > 1 ? 1 / factor : 1;
+			scene.background.repeat.y = factor > 1 ? 1 : factor;
+		}
+	};
+  var img = new Image();
+	img.onload = function () {
+		scene.background = new THREE.TextureLoader().load(imagefilename);
+		setBackground(scene, img.width, img.height);
+	};
+	img.src = imagefilename;
+
+	var cameraNear = 1, cameraFar = 500;
+	var camera = new THREE.PerspectiveCamera(75, size.getWidth() / size.getHeight(), cameraNear, cameraFar);
+
+	var renderer = new THREE.WebGLRenderer({
+		canvas: canvas,
+		antialias: true,
+	});
+  var canvas_resize = function () {
+		canvas.style.width = windowSize(true).width + "px";
+		canvas.style.height = windowSize().height + "px";
+		if(scene.background) {
+			setBackground(scene, img.width, img.height);
+		}
+		camera.aspect = size.getWidth() / size.getHeight();
+		camera.updateProjectionMatrix();
+		renderer.setPixelRatio(window.devicePixelRatio);
+		renderer.setSize(size.getWidth(), size.getHeight());
+	};
+	canvas_resize();
+  window.addEventListener("resize", canvas_resize);
+	var canvas_animate = function () {
+		renderer.render(scene, camera);
+		requestAnimationFrame(canvas_animate);
+	};
+	canvas_animate();
+}
+
+function videoloader(videofilename) {
+  if (scene !== null) {
+    Remove();
+  }
+  container.style.display = "block";
+  scene = new THREE.Scene();
+  videotextureloader(videofilename);
   //just add something to show initially
   // const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
   // const material = new THREE.MeshNormalMaterial();
@@ -69,9 +148,6 @@ function dummymodelloader() {
   renderer.setAnimationLoop( dummyanimation );
   document.body.appendChild( renderer.domElement );
 }
-
-//videotextureloader();
-//textureLoader();
 
 function imagetextureLoader(filename) {
 	// Test Load the background texture
@@ -101,8 +177,8 @@ function videotextureloader(videofilename) {
 
 function videotextureunloader() {
 	video = document.getElementById( 'video' );
-	video.pause();
   if (videotexture !== null) {
+    video.pause();
     videotexture.dispose();
 	  videotexture = null;
   }
@@ -132,6 +208,7 @@ function glbinit() {
   if (scene !== null) {
     Remove();
   }
+  container.style.display = "block";
   scene = new THREE.Scene();
   render_commons_init();
   const pmremGenerator = new THREE.PMREMGenerator( renderer );
@@ -155,6 +232,7 @@ function fbxinit() {
   if (scene !== null) {
     Remove();
   }
+  container.style.display = "block";
   scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
@@ -203,6 +281,7 @@ function daeinit() {
   if (scene !== null) {
     Remove();
   }
+  container.style.display = "block";
   scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 25, window.innerWidth / window.innerHeight, 1, 1000 );
@@ -232,6 +311,7 @@ function objinit() {
   if (scene !== null) {
     Remove();
   }
+  container.style.display = "block";
   scene = new THREE.Scene();
   render_commons_init();
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.1, 20 );
@@ -256,6 +336,7 @@ function ifcinit() {
   if (scene !== null) {
     Remove();
   }
+  container.style.display = "block";
   scene = new THREE.Scene();
   render_commons_init();
   scene.background = new THREE.Color( 0x8cc7de );
@@ -489,6 +570,10 @@ function Remove() {
   if (renderer !== null && renderer !==undefined) {
     renderer.domElement.remove();
   }
+  imagetextureunloader();
+  videotextureunloader();
+  canvas.style.display = "none";
+  container.style.display = "none";
   scene = null;
   camera = null;
   controls = null;
@@ -539,16 +624,12 @@ socket.addEventListener('message', function (event) {
         let videofilename = obj.filename.substr(index);
         let  filename_length = videofilename.length;
         videofilename = videofilename.substr(0, filename_length - 4) + '.mp4'
-        dummymodelloader();
-        videotextureloader(videofilename);
-        imagetextureunloader();
+        videoloader(videofilename);
       }
       else if (obj.cmd === 'image' ) {
         let index = obj.filename.indexOf(image_uploads);
-        let imagefilename = obj.filename.substr(index)
-        dummymodelloader();
-        imagetextureLoader(imagefilename);
-        videotextureunloader();
+        let imagefilename = obj.filename.substr(index);
+        imageloader(imagefilename);
         //$("#artinfo").show();
       }
       else if (obj.cmd === 'model') {
@@ -569,6 +650,7 @@ socket.addEventListener('message', function (event) {
             // return the filtered value
             if (file.indexOf('.glb')) {
               console.log('Found glb file');
+              videotextureunloader();
               glbinit();
               let modelfilename = asset_dir + '/' + file;
               glbload(modelfilename);
