@@ -8,6 +8,15 @@ body {
 	overscroll-behavior: none;
 }
 
+canvas {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
 a {
 	color: #ff0;
 	text-decoration: none;
@@ -20,15 +29,6 @@ a:hover {
 button {
 	cursor: pointer;
 	text-transform: uppercase;
-}
-
-img {
-    position: absolute;
-    margin: auto;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
 }
 
 #info {
