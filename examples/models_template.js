@@ -42,7 +42,8 @@ const clock = new THREE.Clock();
 const container = document.getElementById( 'container' );
 stats = new Stats();
 container.appendChild( stats.dom );
-var canvas = document.getElementsByTagName("canvas")[0];
+var image = document.getElementById("image");
+var pict = document.getElementById("pict");
 
 gui = new GUI({ width: 400 });
 gui.title("Art Information");
@@ -55,76 +56,12 @@ function imageloader(imagefilename) {
   if (scene !== null) {
     Remove();
   }
-  scene = new THREE.Scene();
-  scene.matrixWorldAutoUpdate = true;
-  canvas.style.display = "block";
-  // NOTE: the width and height of the canvas
-	var size = {
-		getWidth: function(){return canvas.offsetWidth;},
-		getHeight: function(){return canvas.offsetHeight;}
-	};
-
-	var windowSize = function(withScrollBar) {
-		var wid = 0;
-		var hei = 0;
-		if (typeof window.innerWidth != "undefined") {
-			wid = window.innerWidth;
-			hei = window.innerHeight;
-		}
-		else {
-			if (document.documentElement.clientWidth == 0) {
-				wid = document.body.clientWidth;
-				hei = document.body.clientHeight;
-			}
-			else {
-				wid = document.documentElement.clientWidth;
-				hei = document.documentElement.clientHeight;
-			}
-		}
-		return { width: wid - (withScrollBar ? (wid - document.body.offsetWidth + 1) : 0), height: hei };
-	};
-
-	var setBackground = function (scene, backgroundImageWidth, backgroundImageHeight) {
-		if (scene.background) {
-			var factor = (backgroundImageWidth / backgroundImageHeight) / (size.getWidth() / size.getHeight());
-			scene.background.offset.x = factor > 1 ? (1 - 1 / factor) / 2 : 0;
-			scene.background.offset.y = factor > 1 ? 0 : (1 - factor) / 2;
-			scene.background.repeat.x = factor > 1 ? 1 / factor : 1;
-			scene.background.repeat.y = factor > 1 ? 1 : factor;
-		}
-	};
-  var img = new Image();
-	img.onload = function () {
-		scene.background = new THREE.TextureLoader().load(imagefilename);
-		setBackground(scene, img.width, img.height);
-	};
-	img.src = imagefilename;
-
-	var cameraNear = 1, cameraFar = 500;
-	var camera = new THREE.PerspectiveCamera(75, size.getWidth() / size.getHeight(), cameraNear, cameraFar);
-
-	var renderer = new THREE.WebGLRenderer({
-		canvas: canvas,
-		antialias: true,
-	});
-  var canvas_resize = function () {
-		canvas.style.width = windowSize(true).width + "px";
-		canvas.style.height = windowSize().height + "px";
-		if(scene.background) {
-			setBackground(scene, img.width, img.height);
-		}
-		camera.aspect = size.getWidth() / size.getHeight();
-		camera.updateProjectionMatrix();
-		renderer.setPixelRatio(window.devicePixelRatio);
-		renderer.setSize(size.getWidth(), size.getHeight());
-	};
-	canvas_resize();
-  window.addEventListener("resize", canvas_resize);
-	var canvas_animate = function () {
-		renderer.render(scene, camera);
-		requestAnimationFrame(canvas_animate);
-	};
-	canvas_animate();
+  
+  pict.style.display = "block";
+  image.setAttribute("src", imagefilename);
+  image.height = window.innerHeight;
+  image.setAttribute("width", "auto");
+  image.setAttribute("alt", "Image/Gif display mode");
 }
 
 function videoloader(videofilename) {
@@ -572,7 +509,7 @@ function Remove() {
   }
   imagetextureunloader();
   videotextureunloader();
-  canvas.style.display = "none";
+  pict.style.display = "none";
   container.style.display = "none";
   scene = null;
   camera = null;
