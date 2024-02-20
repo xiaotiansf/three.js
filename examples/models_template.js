@@ -112,7 +112,7 @@ function imageloader(imagefilename) {
   var canvas_resize = function () {
 		canvas.style.width = windowSize(true).width + "px";
 		canvas.style.height = windowSize().height + "px";
-		camera.aspect = size.getWidth() / size.getHeight();
+		//camera.aspect = size.getWidth() / size.getHeight();
 		camera.updateProjectionMatrix();
 		renderer.setPixelRatio(window.devicePixelRatio);
 		renderer.setSize(size.getWidth(), size.getHeight());
