@@ -112,9 +112,6 @@ function imageloader(imagefilename) {
   var canvas_resize = function () {
 		canvas.style.width = windowSize(true).width + "px";
 		canvas.style.height = windowSize().height + "px";
-		if(scene.background) {
-			setBackground(scene, img.width, img.height);
-		}
 		camera.aspect = size.getWidth() / size.getHeight();
 		camera.updateProjectionMatrix();
 		renderer.setPixelRatio(window.devicePixelRatio);
@@ -162,16 +159,17 @@ function videoloader(videofilename) {
 		}
 		return { width: wid - (withScrollBar ? (wid - document.body.offsetWidth + 1) : 0), height: hei };
 	};
-
-	// var setBackground = function (scene, backgroundImageWidth, backgroundImageHeight) {
-	// 	if (scene.background) {
-	// 		var factor = (backgroundImageWidth / backgroundImageHeight) / (size.getWidth() / size.getHeight());
-	// 		scene.background.offset.x = factor > 1 ? (1 - 1 / factor) / 2 : 0;
-	// 		scene.background.offset.y = factor > 1 ? 0 : (1 - factor) / 2;
-	// 		scene.background.repeat.x = factor > 1 ? 1 / factor : 1;
-	// 		scene.background.repeat.y = factor > 1 ? 1 : factor;
-	// 	}
-	// };
+  var setBackground = function (scene, backgroundImageWidth, backgroundImageHeight) {
+		if (scene.background) {
+			var factor = (backgroundImageWidth / backgroundImageHeight) / (size.getWidth() / size.getHeight());
+			scene.background.offset.x = factor > 1 ? (1 - 1 / factor) / 2 : 0;
+			scene.background.offset.y = factor > 1 ? 0 : (1 - factor) / 2;
+			scene.background.repeat.x = factor > 1 ? 1 / factor : 1;
+			scene.background.repeat.y = factor > 1 ? 1 : factor;
+		}
+	};
+  setBackground(scene, originalVideoSrcWidth,  originalVideoSrcHeight);
+	
   //just add something to show initially
   // const geometry = new THREE.BoxGeometry( 0.2, 0.2, 0.2 );
   // const material = new THREE.MeshNormalMaterial();
@@ -188,9 +186,6 @@ function videoloader(videofilename) {
   var canvas_resize = function () {
 		canvas.style.width = windowSize(true).width + "px";
 		canvas.style.height = windowSize().height + "px";
-		// if(scene.background) {
-    //   setBackground(scene, originalVideoSrcWidth,  originalVideoSrcHeight);
-		// }
 		camera.aspect = size.getWidth() / size.getHeight();
 		camera.updateProjectionMatrix();
 		renderer.setPixelRatio(window.devicePixelRatio);
