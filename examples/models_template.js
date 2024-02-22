@@ -98,6 +98,7 @@ function imageloader(imagefilename) {
   var img = new Image();
 	img.onload = function () {
 		scene.background = new THREE.TextureLoader().load(imagefilename);
+    scene.background.mapping = THREE.EquirectangularReflectionMapping;
 		setBackground(scene, img.width, img.height);
 	};
 	img.src = imagefilename;
@@ -669,7 +670,8 @@ socket.addEventListener('message', function (event) {
   if (hashtag_index === 0) {
       let json = cmd_string.slice(hashtag_index);
       const obj = JSON.parse(json);
-      if (obj.cmd === 'video' || obj.cmd === 'image' || obj.cmd === 'gif' || obj.cmd === 'model') {
+      //if (obj.cmd === 'video' || obj.cmd === 'image' || obj.cmd === 'gif' || obj.cmd === 'model') {
+      if (obj.cmd === 'model') {
         overlay_info.title = obj.info.title;
         overlay_info.artist_date = obj.info.artist + "   " + obj.info.date;
         overlay_info.details = obj.info.details;
@@ -677,17 +679,8 @@ socket.addEventListener('message', function (event) {
         overlay_info.credit = obj.info.credit;
         setupArtGui(overlay_info);
       }
-      if (obj.cmd === 'video' || obj.cmd === 'gif' ) {
-        let index = obj.filename.indexOf(image_uploads);
-        let videofilename = obj.filename.substr(index);
-        let  filename_length = videofilename.length;
-        videofilename = videofilename.substr(0, filename_length - 4) + '.mp4'
-        videoloader(videofilename);
-      }
-      else if (obj.cmd === 'image' ) {
-        let index = obj.filename.indexOf(image_uploads);
-        let imagefilename = obj.filename.substr(index);
-        imageloader(imagefilename);
+      if (obj.cmd === 'video' || obj.cmd === 'gif' || obj.cmd === 'image') {
+        Remove();
         //$("#artinfo").show();
       }
       else if (obj.cmd === 'model') {
