@@ -618,6 +618,16 @@ function dummyanimation( time ) {
 	renderer.render( scene, camera );
 }
 
+function StopAnimation() {
+  if (animation_id !== undefined && animation_id !== null) {
+    cancelAnimationFrame(animation_id);
+  }
+  animation_id = null;
+  if (controls != null) {
+    controls.autoRotate = false;
+  }
+}
+
 function Remove() {
   if (animation_id !== undefined && animation_id !== null) {
     cancelAnimationFrame(animation_id);
@@ -680,7 +690,7 @@ socket.addEventListener('message', function (event) {
         setupArtGui(overlay_info);
       }
       if (obj.cmd === 'video' || obj.cmd === 'gif' || obj.cmd === 'image') {
-        Remove();
+        StopAnimation();
         //$("#artinfo").show();
       }
       else if (obj.cmd === 'model') {
