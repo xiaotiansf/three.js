@@ -648,6 +648,35 @@ function Remove() {
   controls = null;
 }
 
+function zoomIn() {
+  const fov = getFov();
+  camera.fov = zoom(fov, "zoomIn");
+  camera.updateProjectionMatrix();
+}
+
+function zoomOut() {
+  const fov = getFov();
+  camera.fov = zoom(fov, "zoomOut");
+  camera.updateProjectionMatrix();
+}
+
+function zoom(value, zoomType) {
+  if (value >= 20 && zoomType === "zoomIn") {
+    return value - 5;
+  } else if (value <= 75 && zoomType === "zoomOut") {
+    return value + 5;
+  } else {
+    return value;
+  }
+}
+
+//fov — Camera frustum vertical field of view.
+function getFov() {
+  return Math.floor(
+    (2 * Math.atan(camera.getFilmHeight() / 2 / camera.getFocalLength()) * 180) / Math.PI
+  );
+}
+
 // Functions to handle socket events
 function MakeConnection ()
 {
