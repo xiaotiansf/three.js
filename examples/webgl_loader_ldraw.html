@@ -69,8 +69,6 @@
 			};
 
 			init();
-			animate();
-
 
 			function init() {
 
@@ -85,6 +83,7 @@
 				renderer = new THREE.WebGLRenderer( { antialias: true } );
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				renderer.setAnimationLoop( animate );
 				renderer.toneMapping = THREE.ACESFilmicToneMapping;
 				container.appendChild( renderer.domElement );
 
@@ -94,7 +93,7 @@
 
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xdeebed );
-				scene.environment = pmremGenerator.fromScene( new RoomEnvironment( renderer ) ).texture;
+				scene.environment = pmremGenerator.fromScene( new RoomEnvironment() ).texture;
 
 				controls = new OrbitControls( camera, renderer.domElement );
 				controls.enableDamping = true;
@@ -321,7 +320,6 @@
 
 			function animate() {
 
-				requestAnimationFrame( animate );
 				controls.update();
 				render();
 

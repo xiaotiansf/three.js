@@ -45,30 +45,9 @@ function header() {
 
 			code.prepend( `/**
  * @license
- * Copyright 2010-2023 Three.js Authors
+ * Copyright 2010-2024 Three.js Authors
  * SPDX-License-Identifier: MIT
  */\n` );
-
-			return {
-				code: code.toString(),
-				map: code.generateMap()
-			};
-
-		}
-
-	};
-
-}
-
-function deprecationWarning() {
-
-	return {
-
-		renderChunk( code ) {
-
-			code = new MagicString( code );
-
-			code.prepend( `console.warn( 'Scripts "build/three.js" and "build/three.min.js" are deprecated with r150+, and will be removed with r160. Please use ES Modules or alternatives: https://threejs.org/docs/index.html#manual/en/introduction/Installation' );\n` );
 
 			return {
 				code: code.toString(),
@@ -96,6 +75,30 @@ const builds = [
 		]
 	},
 	{
+		input: 'src/Three.WebGPU.js',
+		plugins: [
+			header()
+		],
+		output: [
+			{
+				format: 'esm',
+				file: 'build/three.webgpu.js'
+			}
+		]
+	},
+	{
+		input: 'src/Three.WebGPU.Nodes.js',
+		plugins: [
+			header()
+		],
+		output: [
+			{
+				format: 'esm',
+				file: 'build/three.webgpu.nodes.js'
+			}
+		]
+	},
+	{
 		input: 'src/Three.js',
 		plugins: [
 			glsl(),
@@ -106,6 +109,32 @@ const builds = [
 			{
 				format: 'esm',
 				file: 'build/three.module.min.js'
+			}
+		]
+	},
+	{
+		input: 'src/Three.WebGPU.js',
+		plugins: [
+			header(),
+			terser()
+		],
+		output: [
+			{
+				format: 'esm',
+				file: 'build/three.webgpu.min.js'
+			}
+		]
+	},
+	{
+		input: 'src/Three.WebGPU.Nodes.js',
+		plugins: [
+			header(),
+			terser()
+		],
+		output: [
+			{
+				format: 'esm',
+				file: 'build/three.webgpu.nodes.min.js'
 			}
 		]
 	},
@@ -123,40 +152,7 @@ const builds = [
 				indent: '\t'
 			}
 		]
-	},
-
-	{ // @deprecated, r150
-		input: 'src/Three.js',
-		plugins: [
-			glsl(),
-			header(),
-			deprecationWarning()
-		],
-		output: [
-			{
-				format: 'umd',
-				name: 'THREE',
-				file: 'build/three.js',
-				indent: '\t'
-			}
-		]
-	},
-	{ // @deprecated, r150
-		input: 'src/Three.js',
-		plugins: [
-			glsl(),
-			header(),
-			deprecationWarning(),
-			terser()
-		],
-		output: [
-			{
-				format: 'umd',
-				name: 'THREE',
-				file: 'build/three.min.js'
-			}
-		]
 	}
 ];
 
-export default ( args ) => args.configOnlyModule ? builds[ 0 ] : builds;
+export default ( args ) => args.configOnlyModule ? builds.slice( 0, 3 ) : builds;
