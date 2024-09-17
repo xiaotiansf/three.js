@@ -62,6 +62,7 @@ class WebGLBackend extends Backend {
 
 		this.disjoint = this.extensions.get( 'EXT_disjoint_timer_query_webgl2' );
 		this.parallel = this.extensions.get( 'KHR_parallel_shader_compile' );
+
 		this._currentContext = null;
 
 	}
@@ -597,6 +598,10 @@ class WebGLBackend extends Backend {
 
 		const contextData = this.get( context );
 
+		const drawParms = renderObject.getDrawParameters();
+
+		if ( drawParms === null ) return;
+
 		//
 
 		this._bindUniforms( renderObject.getBindings() );
@@ -635,9 +640,6 @@ class WebGLBackend extends Backend {
 
 		const index = renderObject.getIndex();
 
-		const geometry = renderObject.geometry;
-		const drawRange = renderObject.drawRange;
-
 		//
 
 		const lastObject = contextData.lastOcclusionObject;
@@ -668,8 +670,6 @@ class WebGLBackend extends Backend {
 		}
 
 		//
-		let rangeFactor = 1;
-
 		const renderer = this.bufferRenderer;
 
 		if ( object.isPoints ) renderer.mode = gl.POINTS;
@@ -683,8 +683,6 @@ class WebGLBackend extends Backend {
 				state.setLineWidth( material.wireframeLinewidth * this.renderer.getPixelRatio() );
 				renderer.mode = gl.LINES;
 
-				rangeFactor = 2;
-
 			} else {
 
 				renderer.mode = gl.TRIANGLES;
@@ -695,55 +693,25 @@ class WebGLBackend extends Backend {
 
 		//
 
-		const group = renderObject.group;
-
+		const { vertexCount, instanceCount } = drawParms;
+		let { firstVertex } = drawParms;
 
 		renderer.object = object;
-
-
-		let firstVertex = drawRange.start * rangeFactor;
-		let lastVertex = ( drawRange.start + drawRange.count ) * rangeFactor;
-
-		if ( group !== null ) {
-
-			firstVertex = Math.max( firstVertex, group.start * rangeFactor );
-			lastVertex = Math.min( lastVertex, ( group.start + group.count ) * rangeFactor );
-
-		}
-
-		if ( index !== null ) {
-
-			const indexData = this.get( index );
-			const indexCount = index.count;
-
-			renderer.index = index.count;
-			renderer.type = indexData.type;
-
-			firstVertex = Math.max( firstVertex, 0 );
-			lastVertex = Math.min( lastVertex, indexCount );
-
-		} else {
-
-			renderer.index = 0;
-
-			const vertexCount = geometry.attributes.position.count;
-
-			firstVertex = Math.max( firstVertex, 0 );
-			lastVertex = Math.min( lastVertex, vertexCount );
-
-		}
-
-		const count = lastVertex - firstVertex;
-
-		if ( count < 0 || count === Infinity ) return;
 
 		if ( index !== null ) {
 
 			firstVertex *= index.array.BYTES_PER_ELEMENT;
 
-		}
+			const indexData = this.get( index );
 
-		const instanceCount = this.getInstanceCount( renderObject );
+			renderer.index = index.count;
+			renderer.type = indexData.type;
+
+		} else {
+
+			renderer.index = 0;
+
+		}
 
 		if ( object.isBatchedMesh ) {
 
@@ -763,11 +731,11 @@ class WebGLBackend extends Backend {
 
 		} else if ( instanceCount > 1 ) {
 
-			renderer.renderInstances( firstVertex, count, instanceCount );
+			renderer.renderInstances( firstVertex, vertexCount, instanceCount );
 
 		} else {
 
-			renderer.render( firstVertex, count );
+			renderer.render( firstVertex, vertexCount );
 
 		}
 		//
@@ -821,9 +789,9 @@ class WebGLBackend extends Backend {
 
 	}
 
-	copyTextureToBuffer( texture, x, y, width, height ) {
+	copyTextureToBuffer( texture, x, y, width, height, faceIndex ) {
 
-		return this.textureUtils.copyTextureToBuffer( texture, x, y, width, height );
+		return this.textureUtils.copyTextureToBuffer( texture, x, y, width, height, faceIndex );
 
 	}
 
@@ -1139,40 +1107,52 @@ class WebGLBackend extends Backend {
 
 	updateBindings( bindGroup, bindings ) {
 
-		const { state, gl } = this;
+		if ( ! bindGroup ) return;
 
-		let groupIndex = 0;
-		let textureIndex = 0;
+		const { gl } = this;
 
-		for ( const bindGroup of bindings ) {
+		const bindingsData = this.get( bindings );
+		const bindGroupData = this.get( bindGroup );
 
-			for ( const binding of bindGroup.bindings ) {
+		if ( bindingsData.textureIndex === undefined ) bindingsData.textureIndex = 0;
 
-				if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
+		if ( bindGroupData.textureIndex === undefined ) {
 
-					const bufferGPU = gl.createBuffer();
-					const data = binding.buffer;
+			bindGroupData.textureIndex = bindingsData.textureIndex;
 
-					gl.bindBuffer( gl.UNIFORM_BUFFER, bufferGPU );
-					gl.bufferData( gl.UNIFORM_BUFFER, data, gl.DYNAMIC_DRAW );
-					state.bindBufferBase( gl.UNIFORM_BUFFER, groupIndex, bufferGPU );
+		} else {
 
-					this.set( binding, {
-						index: groupIndex ++,
-						bufferGPU
-					} );
+			// reset textureIndex to match previous mappimgs when rebuilt
+			bindingsData.textureIndex = bindGroupData.textureIndex;
 
-				} else if ( binding.isSampledTexture ) {
+		}
 
-					const { textureGPU, glTextureType } = this.get( binding.texture );
+		let i = 0;
 
-					this.set( binding, {
-						index: textureIndex ++,
-						textureGPU,
-						glTextureType
-					} );
+		for ( const binding of bindGroup.bindings ) {
 
-				}
+			if ( binding.isUniformsGroup || binding.isUniformBuffer ) {
+
+				const data = binding.buffer;
+				const bufferGPU = gl.createBuffer();
+
+				gl.bindBuffer( gl.UNIFORM_BUFFER, bufferGPU );
+				gl.bufferData( gl.UNIFORM_BUFFER, data, gl.DYNAMIC_DRAW );
+
+				this.set( binding, {
+					index: bindGroup.index * 2 + i ++,
+					bufferGPU
+				} );
+
+			} else if ( binding.isSampledTexture ) {
+
+				const { textureGPU, glTextureType } = this.get( binding.texture );
+
+				this.set( binding, {
+					index: bindingsData.textureIndex ++,
+					textureGPU,
+					glTextureType
+				} );
 
 			}
 
@@ -1273,9 +1253,9 @@ class WebGLBackend extends Backend {
 
 	}
 
-	copyFramebufferToTexture( texture, renderContext ) {
+	copyFramebufferToTexture( texture, renderContext, rectangle ) {
 
-		this.textureUtils.copyFramebufferToTexture( texture, renderContext );
+		this.textureUtils.copyFramebufferToTexture( texture, renderContext, rectangle );
 
 	}
 

@@ -44,6 +44,8 @@ class Renderer {
 		const {
 			logarithmicDepthBuffer = false,
 			alpha = true,
+			depth = true,
+			stencil = false,
 			antialias = false,
 			samples = 0,
 			getFallback = null
@@ -72,8 +74,8 @@ class Renderer {
 
 		this.sortObjects = true;
 
-		this.depth = true;
-		this.stencil = false;
+		this.depth = depth;
+		this.stencil = stencil;
 
 		this.clippingPlanes = [];
 
@@ -422,7 +424,8 @@ class Renderer {
 
 		//
 
-		const renderBundleNeedsUpdate = renderBundleData.renderContexts.has( renderContext ) === false || bundleGroup.needsUpdate === true;
+		const needsUpdate = bundleGroup.version !== renderBundleData.version;
+		const renderBundleNeedsUpdate = renderBundleData.renderContexts.has( renderContext ) === false || needsUpdate;
 
 		renderBundleData.renderContexts.add( renderContext );
 
@@ -430,7 +433,7 @@ class Renderer {
 
 			this.backend.beginBundle( renderContext );
 
-			if ( renderBundleData.renderObjects === undefined || bundleGroup.needsUpdate === true ) {
+			if ( renderBundleData.renderObjects === undefined || needsUpdate ) {
 
 				renderBundleData.renderObjects = [];
 
@@ -448,22 +451,26 @@ class Renderer {
 
 			this.backend.finishBundle( renderContext, renderBundle );
 
-			bundleGroup.needsUpdate = false;
+			renderBundleData.version = bundleGroup.version;
 
 		} else {
 
-			const renderObjects = renderBundleData.renderObjects;
+			const { renderObjects } = renderBundleData;
 
 			for ( let i = 0, l = renderObjects.length; i < l; i ++ ) {
 
 				const renderObject = renderObjects[ i ];
 
-				this._nodes.updateBefore( renderObject );
+				if ( this._nodes.needsRefresh( renderObject ) ) {
 
-				this._nodes.updateForRender( renderObject );
-				this._bindings.updateForRender( renderObject );
+					this._nodes.updateBefore( renderObject );
 
-				this._nodes.updateAfter( renderObject );
+					this._nodes.updateForRender( renderObject );
+					this._bindings.updateForRender( renderObject );
+
+					this._nodes.updateAfter( renderObject );
+
+				}
 
 			}
 
@@ -709,10 +716,12 @@ class Renderer {
 
 		// process render lists
 
-		const opaqueObjects = renderList.opaque;
-		const transparentObjects = renderList.transparent;
-		const bundles = renderList.bundles;
-		const lightsNode = renderList.lightsNode;
+		const {
+			bundles,
+			lightsNode,
+			transparent: transparentObjects,
+			opaque: opaqueObjects
+		} = renderList;
 
 		if ( bundles.length > 0 ) this._renderBundles( bundles, sceneRef, lightsNode );
 		if ( this.opaque === true && opaqueObjects.length > 0 ) this._renderObjects( opaqueObjects, camera, sceneRef, lightsNode );
@@ -1239,13 +1248,15 @@ class Renderer {
 
 	}
 
-	copyFramebufferToTexture( framebufferTexture ) {
+	copyFramebufferToTexture( framebufferTexture, rectangle = null ) {
 
 		const renderContext = this._currentRenderContext;
 
 		this._textures.updateTexture( framebufferTexture );
 
-		this.backend.copyFramebufferToTexture( framebufferTexture, renderContext );
+		rectangle = rectangle === null ? _vector4.set( 0, 0, framebufferTexture.image.width, framebufferTexture.image.height ) : rectangle;
+
+		this.backend.copyFramebufferToTexture( framebufferTexture, renderContext, rectangle );
 
 	}
 
@@ -1259,9 +1270,9 @@ class Renderer {
 	}
 
 
-	readRenderTargetPixelsAsync( renderTarget, x, y, width, height, index = 0 ) {
+	readRenderTargetPixelsAsync( renderTarget, x, y, width, height, index = 0, faceIndex = 0 ) {
 
-		return this.backend.copyTextureToBuffer( renderTarget.textures[ index ], x, y, width, height );
+		return this.backend.copyTextureToBuffer( renderTarget.textures[ index ], x, y, width, height, faceIndex );
 
 	}
 
@@ -1295,8 +1306,7 @@ class Renderer {
 
 					}
 
-					const geometry = object.geometry;
-					const material = object.material;
+					const { geometry, material } = object;
 
 					if ( material.visible ) {
 
@@ -1314,8 +1324,7 @@ class Renderer {
 
 				if ( ! object.frustumCulled || _frustum.intersectsObject( object ) ) {
 
-					const geometry = object.geometry;
-					const material = object.material;
+					const { geometry, material } = object;
 
 					if ( this.sortObjects === true ) {
 
@@ -1572,11 +1581,19 @@ class Renderer {
 
 		//
 
-		this._nodes.updateBefore( renderObject );
+		const needsRefresh = this._nodes.needsRefresh( renderObject );
 
-		this._nodes.updateForRender( renderObject );
-		this._geometries.updateForRender( renderObject );
-		this._bindings.updateForRender( renderObject );
+		if ( needsRefresh ) {
+
+			this._nodes.updateBefore( renderObject );
+
+			this._geometries.updateForRender( renderObject );
+
+			this._nodes.updateForRender( renderObject );
+			this._bindings.updateForRender( renderObject );
+
+		}
+
 		this._pipelines.updateForRender( renderObject );
 
 		//
@@ -1587,11 +1604,13 @@ class Renderer {
 
 			renderBundleData.renderObjects.push( renderObject );
 
+			renderObject.bundle = this._currentRenderBundle.scene;
+
 		}
 
 		this.backend.draw( renderObject, this.info );
 
-		this._nodes.updateAfter( renderObject );
+		if ( needsRefresh ) this._nodes.updateAfter( renderObject );
 
 	}
 
@@ -1603,8 +1622,9 @@ class Renderer {
 
 		this._nodes.updateBefore( renderObject );
 
-		this._nodes.updateForRender( renderObject );
 		this._geometries.updateForRender( renderObject );
+
+		this._nodes.updateForRender( renderObject );
 		this._bindings.updateForRender( renderObject );
 
 		this._pipelines.getForRender( renderObject, this._compilationPromises );

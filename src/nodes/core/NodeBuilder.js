@@ -79,6 +79,8 @@ class NodeBuilder {
 		this.updateAfterNodes = [];
 		this.hashNodes = {};
 
+		this.monitor = null;
+
 		this.lightsNode = null;
 		this.environmentNode = null;
 		this.fogNode = null;
@@ -106,8 +108,6 @@ class NodeBuilder {
 		this.stack = stack();
 		this.stacks = [];
 		this.tab = '\t';
-
-		this.instanceBindGroups = true;
 
 		this.currentFunctionNode = null;
 
@@ -328,13 +328,13 @@ class NodeBuilder {
 
 			if ( updateBeforeType !== NodeUpdateType.NONE ) {
 
-				this.updateBeforeNodes.push( node );
+				this.updateBeforeNodes.push( node.getSelf() );
 
 			}
 
 			if ( updateAfterType !== NodeUpdateType.NONE ) {
 
-				this.updateAfterNodes.push( node );
+				this.updateAfterNodes.push( node.getSelf() );
 
 			}
 

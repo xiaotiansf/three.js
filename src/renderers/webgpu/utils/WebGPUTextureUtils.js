@@ -122,6 +122,8 @@ class WebGPUTextureUtils {
 		const dimension = this._getDimension( texture );
 		const format = texture.internalFormat || options.format || getFormat( texture, backend.device );
 
+		textureData.format = format;
+
 		let sampleCount = options.sampleCount !== undefined ? options.sampleCount : 1;
 
 		sampleCount = backend.utils.getSampleCount( sampleCount );
@@ -369,7 +371,7 @@ class WebGPUTextureUtils {
 
 	}
 
-	async copyTextureToBuffer( texture, x, y, width, height ) {
+	async copyTextureToBuffer( texture, x, y, width, height, faceIndex ) {
 
 		const device = this.backend.device;
 
@@ -393,7 +395,7 @@ class WebGPUTextureUtils {
 		encoder.copyTextureToBuffer(
 			{
 				texture: textureGPU,
-				origin: { x, y },
+				origin: { x, y, z: faceIndex },
 			},
 			{
 				buffer: readBuffer,

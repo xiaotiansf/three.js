@@ -3,7 +3,7 @@
  * Copyright 2010-2024 Three.js Authors
  * SPDX-License-Identifier: MIT
  */
-const REVISION = '168';
+const REVISION = '169dev';
 
 const MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
 const TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
@@ -24225,6 +24225,28 @@ function WebGLTextures( _gl, extensions, state, properties, capabilities, utils,
 
 		}
 
+		if ( glFormat === _gl.RGB_INTEGER ) {
+
+			if ( glType === _gl.UNSIGNED_BYTE ) internalFormat = _gl.RGB8UI;
+			if ( glType === _gl.UNSIGNED_SHORT ) internalFormat = _gl.RGB16UI;
+			if ( glType === _gl.UNSIGNED_INT ) internalFormat = _gl.RGB32UI;
+			if ( glType === _gl.BYTE ) internalFormat = _gl.RGB8I;
+			if ( glType === _gl.SHORT ) internalFormat = _gl.RGB16I;
+			if ( glType === _gl.INT ) internalFormat = _gl.RGB32I;
+
+		}
+
+		if ( glFormat === _gl.RGBA_INTEGER ) {
+
+			if ( glType === _gl.UNSIGNED_BYTE ) internalFormat = _gl.RGBA8UI;
+			if ( glType === _gl.UNSIGNED_SHORT ) internalFormat = _gl.RGBA16UI;
+			if ( glType === _gl.UNSIGNED_INT ) internalFormat = _gl.RGBA32UI;
+			if ( glType === _gl.BYTE ) internalFormat = _gl.RGBA8I;
+			if ( glType === _gl.SHORT ) internalFormat = _gl.RGBA16I;
+			if ( glType === _gl.INT ) internalFormat = _gl.RGBA32I;
+
+		}
+
 		if ( glFormat === _gl.RGB ) {
 
 			if ( glType === _gl.UNSIGNED_INT_5_9_9_9_REV ) internalFormat = _gl.RGB9_E5;
@@ -29601,6 +29623,12 @@ class WebGLRenderer {
 
 			scene.traverse( function ( object ) {
 
+				if ( ! ( object.isMesh || object.isPoints || object.isLine || object.isSprite ) ) {
+
+					return;
+
+				}
+
 				const material = object.material;
 
 				if ( material ) {
@@ -31094,7 +31122,6 @@ class WebGLRenderer {
 					_gl.bindBuffer( _gl.PIXEL_PACK_BUFFER, glBuffer );
 					_gl.bufferData( _gl.PIXEL_PACK_BUFFER, buffer.byteLength, _gl.STREAM_READ );
 					_gl.readPixels( x, y, width, height, utils.convert( textureFormat ), utils.convert( textureType ), 0 );
-					_gl.flush();
 
 					// reset the frame buffer to the currently set buffer before waiting
 					const currFramebuffer = _currentRenderTarget !== null ? properties.get( _currentRenderTarget ).__webglFramebuffer : null;
@@ -31102,6 +31129,9 @@ class WebGLRenderer {
 
 					// check if the commands have finished every 8 ms
 					const sync = _gl.fenceSync( _gl.SYNC_GPU_COMMANDS_COMPLETE, 0 );
+
+					_gl.flush();
+
 					await probeAsync( _gl, sync, 4 );
 
 					// read the data and delete the buffer
@@ -32377,6 +32407,27 @@ class LOD extends Object3D {
 		this.add( object );
 
 		return this;
+
+	}
+
+	removeLevel( distance ) {
+
+		const levels = this.levels;
+
+		for ( let i = 0; i < levels.length; i ++ ) {
+
+			if ( levels[ i ].distance === distance ) {
+
+				const removedElements = levels.splice( i, 1 );
+				this.remove( removedElements[ 0 ].object );
+
+				return true;
+
+			}
+
+		}
+
+		return false;
 
 	}
 
@@ -34183,6 +34234,42 @@ class BatchedMesh extends Mesh {
 		}
 
 		return drawInfo[ instanceId ].visible;
+
+	}
+
+	setGeometryIdAt( instanceId, geometryId ) {
+
+		// return early if the geometry is out of range or not active
+		const drawInfo = this._drawInfo;
+		if ( instanceId >= drawInfo.length || drawInfo[ instanceId ].active === false ) {
+
+			return null;
+
+		}
+
+		// check if the provided geometryId is within the valid range
+		if ( geometryId < 0 || geometryId >= this._geometryCount ) {
+
+			return null;
+
+		}
+
+		drawInfo[ instanceId ].geometryIndex = geometryId;
+
+		return this;
+
+	}
+
+	getGeometryIdAt( instanceId ) {
+
+		const drawInfo = this._drawInfo;
+		if ( instanceId >= drawInfo.length || drawInfo[ instanceId ].active === false ) {
+
+			return - 1;
+
+		}
+
+		return drawInfo[ instanceId ].geometryIndex;
 
 	}
 
@@ -48203,7 +48290,7 @@ class Audio extends Object3D {
 
 	}
 
-	stop() {
+	stop( delay = 0 ) {
 
 		if ( this.hasPlaybackControl === false ) {
 
@@ -48216,7 +48303,7 @@ class Audio extends Object3D {
 
 		if ( this.source !== null ) {
 
-			this.source.stop();
+			this.source.stop( this.context.currentTime + delay );
 			this.source.onended = null;
 
 		}
@@ -53858,7 +53945,7 @@ class ShapePath {
 
 class Controls extends EventDispatcher {
 
-	constructor( object, domElement ) {
+	constructor( object, domElement = null ) {
 
 		super();
 

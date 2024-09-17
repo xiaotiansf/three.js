@@ -61,6 +61,9 @@ export default class RenderObject {
 		this.attributes = null;
 		this.pipeline = null;
 		this.vertexBuffers = null;
+		this.drawParams = null;
+
+		this.bundle = null;
 
 		this.updateClipping( renderContext.clippingContext );
 
@@ -71,6 +74,7 @@ export default class RenderObject {
 
 		this._nodeBuilderState = null;
 		this._bindings = null;
+		this._monitor = null;
 
 		this.onDispose = null;
 
@@ -124,6 +128,12 @@ export default class RenderObject {
 	getNodeBuilderState() {
 
 		return this._nodeBuilderState || ( this._nodeBuilderState = this._nodes.getForRender( this ) );
+
+	}
+
+	getMonitor() {
+
+		return this._monitor || ( this._monitor = this.getNodeBuilderState().monitor );
 
 	}
 
@@ -183,6 +193,61 @@ export default class RenderObject {
 
 	}
 
+	getDrawParameters() {
+
+		const { object, material, geometry, group, drawRange } = this;
+
+		const drawParams = this.drawParams || ( this.drawParams = {
+			vertexCount: 0,
+			firstVertex: 0,
+			instanceCount: 0,
+			firstInstance: 0
+		} );
+
+		const index = this.getIndex();
+		const hasIndex = ( index !== null );
+		const instanceCount = geometry.isInstancedBufferGeometry ? geometry.instanceCount : ( object.count > 1 ? object.count : 1 );
+
+		if ( instanceCount === 0 ) return null;
+
+		drawParams.instanceCount = instanceCount;
+
+		if ( object.isBatchedMesh === true ) return drawParams;
+
+		let rangeFactor = 1;
+
+		if ( material.wireframe === true && ! object.isPoints && ! object.isLineSegments && ! object.isLine && ! object.isLineLoop ) {
+
+			rangeFactor = 2;
+
+		}
+
+		let firstVertex = drawRange.start * rangeFactor;
+		let lastVertex = ( drawRange.start + drawRange.count ) * rangeFactor;
+
+		if ( group !== null ) {
+
+			firstVertex = Math.max( firstVertex, group.start * rangeFactor );
+			lastVertex = Math.min( lastVertex, ( group.start + group.count ) * rangeFactor );
+
+		}
+
+		const itemCount = hasIndex === true ? index.count : geometry.attributes.position.count;
+
+		firstVertex = Math.max( firstVertex, 0 );
+		lastVertex = Math.min( lastVertex, itemCount );
+
+		const count = lastVertex - firstVertex;
+
+		if ( count < 0 || count === Infinity ) return null;
+
+		drawParams.vertexCount = count;
+		drawParams.firstVertex = firstVertex;
+
+		return drawParams;
+
+	}
+
 	getMaterialCacheKey() {
 
 		const { object, material } = this;
@@ -237,6 +302,12 @@ export default class RenderObject {
 
 		cacheKey += this.clippingContext.cacheKey + ',';
 
+		if ( object.geometry ) {
+
+			cacheKey += object.geometry.id + ',';
+
+		}
+
 		if ( object.skeleton ) {
 
 			cacheKey += object.skeleton.bones.length + ',';
@@ -263,7 +334,9 @@ export default class RenderObject {
 
 		if ( object.count > 1 ) {
 
-			cacheKey += object.count + ',' + object.uuid + ',';
+			// TODO: https://github.com/mrdoob/three.js/pull/29066#issuecomment-2269400850
+
+			cacheKey += object.uuid + ',';
 
 		}
 
@@ -273,7 +346,7 @@ export default class RenderObject {
 
 	get needsUpdate() {
 
-		return this.initialNodesCacheKey !== this.getDynamicCacheKey() || this.clippingNeedsUpdate;
+		return /*this.object.static !== true &&*/ ( this.initialNodesCacheKey !== this.getDynamicCacheKey() || this.clippingNeedsUpdate );
 
 	}
 

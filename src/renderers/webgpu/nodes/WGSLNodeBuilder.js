@@ -171,6 +171,8 @@ class WGSLNodeBuilder extends NodeBuilder {
 
 		this.directives = {};
 
+		this.scopedArrays = new Map();
+
 	}
 
 	needsToWorkingColorSpace( texture ) {
@@ -766,6 +768,45 @@ ${ flowData.code }
 
 	}
 
+	getScopedArray( name, scope, bufferType, bufferCount ) {
+
+		if ( this.scopedArrays.has( name ) === false ) {
+
+			this.scopedArrays.set( name, {
+				name,
+				scope,
+				bufferType,
+				bufferCount
+			} );
+
+		}
+
+		return name;
+
+	}
+
+	getScopedArrays( shaderStage ) {
+
+		if ( shaderStage !== 'compute' ) {
+
+			return;
+
+		}
+
+		const snippets = [];
+
+		for ( const { name, scope, bufferType, bufferCount } of this.scopedArrays.values() ) {
+
+			const type = this.getType( bufferType );
+
+			snippets.push( `var<${scope}> ${name}: array< ${type}, ${bufferCount} >;` );
+
+		}
+
+		return snippets.join( '\n' );
+
+	}
+
 	getAttributes( shaderStage ) {
 
 		const snippets = [];
@@ -936,8 +977,8 @@ ${ flowData.code }
 
 		for ( const uniform of uniforms ) {
 
-			const groundName = uniform.groupNode.name;
-			const uniformIndexes = this.bindingsIndexes[ groundName ];
+			const groupName = uniform.groupNode.name;
+			const uniformIndexes = this.bindingsIndexes[ groupName ];
 
 			if ( uniform.type === 'texture' || uniform.type === 'cubeTexture' || uniform.type === 'storageTexture' || uniform.type === 'texture3D' ) {
 
@@ -1011,7 +1052,8 @@ ${ flowData.code }
 				const bufferCount = bufferNode.bufferCount;
 
 				const bufferCountSnippet = bufferCount > 0 ? ', ' + bufferCount : '';
-				const bufferSnippet = `\t${ uniform.name } : array< ${ bufferType }${ bufferCountSnippet } >\n`;
+				const bufferTypeSnippet = bufferNode.isAtomic ? `atomic<${bufferType}>` : `${bufferType}`;
+				const bufferSnippet = `\t${ uniform.name } : array< ${ bufferTypeSnippet }${ bufferCountSnippet } >\n`;
 				const bufferAccessMode = bufferNode.isStorageBufferNode ? `storage, ${ this.getStorageAccess( bufferNode ) }` : 'uniform';
 
 				bufferSnippets.push( this._getWGSLStructBinding( 'NodeBuffer_' + bufferNode.id, bufferSnippet, bufferAccessMode, uniformIndexes.binding ++, uniformIndexes.group ) );
@@ -1065,6 +1107,7 @@ ${ flowData.code }
 			stageData.vars = this.getVars( shaderStage );
 			stageData.codes = this.getCodes( shaderStage );
 			stageData.directives = this.getDirectives( shaderStage );
+			stageData.scopedArrays = this.getScopedArrays( shaderStage );
 
 			//
 
@@ -1290,6 +1333,9 @@ ${shaderData.directives}
 
 // system
 var<private> instanceIndex : u32;
+
+// locals
+${shaderData.scopedArrays}
 
 // uniforms
 ${shaderData.uniforms}

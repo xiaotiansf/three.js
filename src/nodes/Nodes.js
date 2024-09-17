@@ -88,7 +88,7 @@ export { default as FrontFacingNode } from './display/FrontFacingNode.js';
 export { default as NormalMapNode } from './display/NormalMapNode.js';
 export { default as PosterizeNode } from './display/PosterizeNode.js';
 export { default as ToneMappingNode } from './display/ToneMappingNode.js';
-export { default as ViewportNode } from './display/ViewportNode.js';
+export { default as ScreenNode } from './display/ScreenNode.js';
 export { default as ViewportTextureNode } from './display/ViewportTextureNode.js';
 export { default as ViewportSharedTextureNode } from './display/ViewportSharedTextureNode.js';
 export { default as ViewportDepthTextureNode } from './display/ViewportDepthTextureNode.js';
@@ -135,7 +135,6 @@ export { default as RangeNode } from './geometry/RangeNode.js';
 export { default as ComputeNode } from './gpgpu/ComputeNode.js';
 
 // lighting
-export { default as LightNode } from './lighting/LightNode.js';
 export { default as PointLightNode } from './lighting/PointLightNode.js';
 export { default as DirectionalLightNode } from './lighting/DirectionalLightNode.js';
 export { default as RectAreaLightNode } from './lighting/RectAreaLightNode.js';

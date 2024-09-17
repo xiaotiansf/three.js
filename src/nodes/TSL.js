@@ -90,7 +90,7 @@ export * from './display/FrontFacingNode.js';
 export * from './display/NormalMapNode.js';
 export * from './display/PosterizeNode.js';
 export * from './display/ToneMappingNode.js';
-export * from './display/ViewportNode.js';
+export * from './display/ScreenNode.js';
 export * from './display/ViewportTextureNode.js';
 export * from './display/ViewportSharedTextureNode.js';
 export * from './display/ViewportDepthTextureNode.js';
@@ -142,9 +142,12 @@ export * from './geometry/RangeNode.js';
 
 // gpgpu
 export * from './gpgpu/ComputeNode.js';
+export * from './gpgpu/BarrierNode.js';
+export * from './gpgpu/WorkgroupInfoNode.js';
+export * from './gpgpu/AtomicFunctionNode.js';
 
 // lighting
-export * from './lighting/LightNode.js';
+export * from './accessors/Lights.js';
 export * from './lighting/LightsNode.js';
 export * from './lighting/LightingContextNode.js';
 

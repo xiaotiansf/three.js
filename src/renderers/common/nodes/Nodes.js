@@ -3,7 +3,7 @@ import ChainMap from '../ChainMap.js';
 import NodeBuilderState from './NodeBuilderState.js';
 import { cubeMapNode } from '../../../nodes/utils/CubeMapNode.js';
 import { NodeFrame } from '../../../nodes/Nodes.js';
-import { objectGroup, renderGroup, frameGroup, cubeTexture, texture, rangeFog, densityFog, reference, normalWorld, pmremTexture, viewportUV } from '../../../nodes/TSL.js';
+import { objectGroup, renderGroup, frameGroup, cubeTexture, texture, rangeFog, densityFog, reference, normalWorld, pmremTexture, screenUV } from '../../../nodes/TSL.js';
 
 import { CubeUVReflectionMapping, EquirectangularReflectionMapping, EquirectangularRefractionMapping } from '../../../constants.js';
 
@@ -190,7 +190,7 @@ class Nodes extends DataMap {
 			nodeBuilder.updateNodes,
 			nodeBuilder.updateBeforeNodes,
 			nodeBuilder.updateAfterNodes,
-			nodeBuilder.instanceBindGroups,
+			nodeBuilder.monitor,
 			nodeBuilder.transforms
 		);
 
@@ -298,7 +298,7 @@ class Nodes extends DataMap {
 
 				} else if ( background.isTexture === true ) {
 
-					backgroundNode = texture( background, viewportUV.flipY() ).setUpdateMatrix( true );
+					backgroundNode = texture( background, screenUV.flipY() ).setUpdateMatrix( true );
 
 				} else if ( background.isColor !== true ) {
 
@@ -334,11 +334,18 @@ class Nodes extends DataMap {
 
 				if ( fog.isFogExp2 ) {
 
-					fogNode = densityFog( reference( 'color', 'color', fog ), reference( 'density', 'float', fog ) );
+					const color = reference( 'color', 'color', fog ).setGroup( renderGroup );
+					const density = reference( 'density', 'float', fog ).setGroup( renderGroup );
+
+					fogNode = densityFog( color, density );
 
 				} else if ( fog.isFog ) {
 
-					fogNode = rangeFog( reference( 'color', 'color', fog ), reference( 'near', 'float', fog ), reference( 'far', 'float', fog ) );
+					const color = reference( 'color', 'color', fog ).setGroup( renderGroup );
+					const near = reference( 'near', 'float', fog ).setGroup( renderGroup );
+					const far = reference( 'far', 'float', fog ).setGroup( renderGroup );
+
+					fogNode = rangeFog( color, near, far );
 
 				} else {
 
@@ -439,7 +446,7 @@ class Nodes extends DataMap {
 		const renderer = this.renderer;
 		const cacheKey = this.getOutputCacheKey();
 
-		const output = texture( outputTexture, viewportUV ).renderOutput( renderer.toneMapping, renderer.currentColorSpace );
+		const output = texture( outputTexture, screenUV ).renderOutput( renderer.toneMapping, renderer.currentColorSpace );
 
 		outputNodeMap.set( outputTexture, cacheKey );
 
@@ -498,6 +505,15 @@ class Nodes extends DataMap {
 			nodeFrame.updateNode( node );
 
 		}
+
+	}
+
+	needsRefresh( renderObject ) {
+
+		const nodeFrame = this.getNodeFrameForRender( renderObject );
+		const monitor = renderObject.getMonitor();
+
+		return monitor.needsRefresh( renderObject, nodeFrame );
 
 	}
 
